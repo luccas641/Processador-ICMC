@@ -20,7 +20,7 @@ class View : public Instrucoes, public Registradores, public Video
 		static ControllerInterface *controller;
 
 		// ---- registradores -------
-		bool FR[16];
+		bool FR[16], c0[16], IRQ[16];
 		int reg[8];
 		int pc, ir, sp;
 
@@ -40,11 +40,15 @@ class View : public Instrucoes, public Registradores, public Video
 							*labelIr, 
 							*labelSp, 
 							*labelPc, 
-							*labelFR;
+							*labelFR,
+							*labelC0,
+							*labelIRQ;
 
 		char textoLabelPC[16];
 		char textoLabelIR[16];
 		char textoLabelSP[16];
+		char textoLabelC0[16];
+		char textoLabelIRQ[16];
 
 		// ----- Instrucoes ---------
 		GtkTextBuffer *buffer;
@@ -77,6 +81,10 @@ class View : public Instrucoes, public Registradores, public Video
 		void updateSP();
 
 		void updateFR();
+
+		void updateC0();
+
+		void updateIRQ();
 
 		void updateRegistradores();
 

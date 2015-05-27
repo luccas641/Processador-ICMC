@@ -1,0 +1,78 @@
+LIBRARY IEEE;
+USE  IEEE.STD_LOGIC_1164.ALL;
+USE  IEEE.STD_LOGIC_ARITH.ALL;
+USE  IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+ENTITY PIT IS
+	PORT(
+			clk 	  : 	in std_logic;
+			rst 	  : 	in std_logic;
+			bus_dq : 	inout std_logic_vector(15 downto);
+			bus_rw :	in std_logic;
+			bus_req :	in std_logic;
+			bus_addr :  in std_logic_vector(1 downto 0);
+			int			 : out std_logic_vector(2 downto 0)
+		);
+END PIT;
+
+ARCHITECTURE behavioral OF PIT IS
+
+-- Internal Registers
+signal div1			: std_logic_vector(15 downto 0);
+signal div2			: std_logic_vector(15 downto 0);
+signal div3			: std_logic_vector(15 downto 0);
+signal controller  : std_logic_vector(15 downto 0);
+
+signal counter1  : std_logic_vector(15 downto 0);
+signal counter2  : std_logic_vector(15 downto 0);
+signal counter3  : std_logic_vector(15 downto 0);
+
+BEGIN
+	process(clk, rst) 
+	begin
+		if(rst='1') then
+			counter1 <= (others => '0');
+			counter2 <= (others => '0');
+			counter3 <= (others => '0');
+			controller <= (others => '0');
+			div1 <= (others => '0');
+			div2 <= (others => '0');
+			div3 <= (others => '0');
+		elsif(rising_edge(clk)) then
+			if(bus_req = '1') then
+				case bus_addr is				
+					when "00" =>
+						if(bus_rw = '1') then
+							dq <= (others => 'Z');
+							div1 <= dq;
+						else
+							dq <=counter1;
+						end if;
+					when "01" =>
+						if(bus_rw = '1') then
+							dq <= (others => 'Z');
+							div2 <= dq;
+						else
+							dq <=counter2;
+						end if;
+					when "10" =>
+						if(bus_rw = '1') then
+							dq <= (others => 'Z');
+							div3 <= dq;
+						else
+							dq <=counter3;
+						end if;
+					when "11" =>
+						if(bus_rw = '1') then
+							dq <= (others => 'Z');
+							control <= dq;
+						else
+							dq <= (others => '0");
+						end if;
+					when others =>
+				end case;
+			end if;
+		end if;
+	end process;
+
+END behavioral;

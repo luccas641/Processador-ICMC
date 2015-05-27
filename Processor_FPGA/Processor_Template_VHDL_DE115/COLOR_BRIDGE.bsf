@@ -4,7 +4,7 @@ editor if you plan to continue editing the block that represents it in
 the Block Editor! File corruption is VERY likely to occur.
 */
 /*
-Copyright (C) 1991-2009 Altera Corporation
+Copyright (C) 1991-2013 Altera Corporation
 Your use of Altera Corporation's design tools, logic functions 
 and other software and tools, and its AMPP partner logic 
 functions, and any output files from any of the foregoing 
@@ -18,24 +18,31 @@ programming logic devices manufactured by Altera and sold by
 Altera or its authorized distributors.  Please refer to the 
 applicable agreement for further details.
 */
-(header "symbol" (version "1.1"))
+(header "symbol" (version "1.2"))
 (symbol
-	(rect 64 64 216 192)
+	(rect 64 64 200 176)
 	(text "COLOR_BRIDGE" (rect 5 0 92 12)(font "Arial" ))
-	(text "inst" (rect 8 112 25 124)(font "Arial" ))
+	(text "inst" (rect 8 96 25 108)(font "Arial" ))
+	(port
+		(pt 0 48)
+		(input)
+		(text "CLK" (rect 0 0 21 12)(font "Arial" ))
+		(text "CLK" (rect 21 43 42 55)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
 	(port
 		(pt 0 64)
 		(input)
 		(text "RST" (rect 0 0 21 12)(font "Arial" ))
 		(text "RST" (rect 21 59 42 71)(font "Arial" ))
-		(line (pt 0 64)(pt 16 64)(line_width 1))
+		(line (pt 0 64)(pt 16 64))
 	)
 	(port
 		(pt 64 0)
 		(input)
 		(text "BRG_EN" (rect 0 0 44 12)(font "Arial" ))
-		(text "BRG_EN" (rect 56 24 68 68)(font "Arial" )(vertical))
-		(line (pt 64 0)(pt 64 16)(line_width 1))
+		(text "BRG_EN" (rect 56 25 68 69)(font "Arial" )(vertical))
+		(line (pt 64 0)(pt 64 17))
 	)
 	(port
 		(pt 0 80)
@@ -45,36 +52,27 @@ applicable agreement for further details.
 		(line (pt 0 80)(pt 16 80)(line_width 3))
 	)
 	(port
-		(pt 0 48)
-		(input)
-		(text "CLK" (rect 0 0 21 12)(font "Arial" ))
-		(text "CLK" (rect 21 43 42 55)(font "Arial" )(invisible))
-		(line (pt 0 48)(pt 16 48)(line_width 1))
+		(pt 136 48)
+		(output)
+		(text "R[9..0]" (rect -48 0 -14 12)(font "Arial" ))
+		(text "R[9..0]" (rect 87 43 115 55)(font "Arial" ))
+		(line (pt 136 48)(pt 120 48)(line_width 3))
 	)
 	(port
-		(pt 152 48)
+		(pt 136 64)
 		(output)
-		(text "R[9..0]" (rect 0 0 34 12)(font "Arial" ))
-		(text "R[9..0]" (rect 97 43 131 55)(font "Arial" ))
-		(line (pt 152 48)(pt 136 48)(line_width 3))
+		(text "G[9..0]" (rect -48 0 -14 12)(font "Arial" ))
+		(text "G[9..0]" (rect 87 59 115 71)(font "Arial" ))
+		(line (pt 136 64)(pt 120 64)(line_width 3))
 	)
 	(port
-		(pt 152 64)
+		(pt 136 80)
 		(output)
-		(text "G[9..0]" (rect 0 0 34 12)(font "Arial" ))
-		(text "G[9..0]" (rect 97 59 131 71)(font "Arial" ))
-		(line (pt 152 64)(pt 136 64)(line_width 3))
-	)
-	(port
-		(pt 152 80)
-		(output)
-		(text "B[9..0]" (rect 0 0 33 12)(font "Arial" ))
-		(text "B[9..0]" (rect 98 75 131 87)(font "Arial" ))
-		(line (pt 152 80)(pt 136 80)(line_width 3))
+		(text "B[9..0]" (rect -48 0 -15 12)(font "Arial" ))
+		(text "B[9..0]" (rect 88 75 115 87)(font "Arial" ))
+		(line (pt 136 80)(pt 120 80)(line_width 3))
 	)
 	(drawing
-		(line (pt 24 48)(pt 16 40)(line_width 1))
-		(line (pt 24 48)(pt 16 56)(line_width 1))
-		(rectangle (rect 16 16 136 112)(line_width 1))
+		(rectangle (rect 16 16 120 96))
 	)
 )

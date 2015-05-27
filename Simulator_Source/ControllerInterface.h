@@ -31,6 +31,9 @@ class ControllerInterface
 		virtual bool getHex() = 0;
 
 		virtual void notifyProcessamento() = 0;
+
+
+		virtual void irq(unsigned) = 0;
 };
 
 #endif

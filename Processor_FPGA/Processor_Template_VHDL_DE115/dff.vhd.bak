@@ -1,0 +1,28 @@
+LIBRARY IEEE;
+USE  IEEE.STD_LOGIC_1164.ALL;
+USE  IEEE.STD_LOGIC_ARITH.ALL;
+USE  IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+ENTITY hex_2_7seg IS
+	generic
+	(
+		width : integer := 15;
+	)
+	PORT(
+			rst 		: in std_logic;
+			clk 		: in std_logic;
+			d			: in std_logic_vector();
+		);
+END hex_2_7seg;
+
+ARCHITECTURE main OF hex_2_7seg IS
+BEGIN
+	PROCESS(clk, rst)
+	BEGIN
+		if rst='1' then
+			data7 <= "0000000";
+		elsif(rising_edge(clk)) then
+			
+		end if;
+	END PROCESS;
+END main;

@@ -3,6 +3,7 @@
 
 #include "Mneumonicos.h"
 #include "ModelInterface.h"
+#include "pit.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +28,7 @@ class Model : public ModelInterface
 
 		int reg[8];
 		int pc, ir, sp;
-		bool FR[16];
+		bool FR[16],  c0[16], IRQ[16];
 
 		// ---- Memoria --------
 		int mem[TAMANHO_MEMORIA]; // Vetor que representa a Memoria de programa e de dados do Processador
@@ -54,6 +55,9 @@ class Model : public ModelInterface
 
 		// -- Video ---
 		pixblock *block;
+
+		// -- Timer --
+		PIT t;
 
 
 	public:
@@ -101,6 +105,17 @@ class Model : public ModelInterface
 
 		void setFR(int N, bool valor);
 
+
+		// -------- C0 -----------
+		bool getC0(int N);
+
+		void setC0(int N, bool valor);
+
+
+		// -------- irq -----------
+		bool getIRQ(int N);
+
+		void setIRQ(int N, bool valor);
 
 		// ------ Instrucoes -------------------
 		void registraInstrucoes(Instrucoes *i);

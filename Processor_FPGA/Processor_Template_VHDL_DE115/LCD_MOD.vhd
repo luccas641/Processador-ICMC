@@ -230,10 +230,10 @@ BEGIN
 							MAINSTATE <= x"3";
 						--DRAW KEYB (IF NECESSARY)
 						WHEN x"3" =>
-							IF(NOT (INKEYB = KEYB)) THEN
+							IF(NOT (INPC = PC)) THEN
 								INKEYB := KEYB;
 								STATE <= x"5";
-							END IF;
+							end if;
 							MAINSTATE <= x"4";
 						--DRAW STATE HALTED (IF HALTED)
 						WHEN x"4" =>

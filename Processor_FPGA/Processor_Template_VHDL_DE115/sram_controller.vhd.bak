@@ -1,0 +1,65 @@
+LIBRARY IEEE;
+USE  IEEE.STD_LOGIC_1164.all;
+USE  IEEE.STD_LOGIC_ARITH.all;
+USE  IEEE.STD_LOGIC_UNSIGNED.all;
+
+ENTITY SRAM_CONTROLLER IS
+	PORT(
+			 clk			: in std_logic;
+			 rst			: in std_logic;
+			 bus_dq	 	: inout std_logic_vector(15 downto 0);
+			 bus_addr	: in std_logic_vector(19 downto 0);
+			 bus_rw 		: in std_logic;
+			 bus_req 	: in std_logic;
+			 sram_dq 	: inout std_logic_vector(15 downto 0);
+			 sram_addr	: out std_logic_vector(19 downto 0);
+			 sram_ce_n	: out std_logic;
+			 sram_oe_n	: out std_logic;
+			 sram_we_n	: out std_logic;
+			 sram_ub_n	: out std_logic;
+			 sram_lb_n	: out std_logic
+			);
+END SRAM_CONTROLLER;
+
+ARCHITECTURE behavioral OF SRAM_CONTROLLER IS
+type state_t is (idle, r0, r1, w0, w1);
+signal state : state_t;
+begin
+
+	process(clk, rst)
+	begin
+		if(rst='1') then
+			sram_ub_n <= '1';
+			sram_lb_n <= '1';
+			sram_ce_n <= '1';
+			state <= idle;
+		elsif(rising_edge(clk)) then
+			case state is
+				when idle =>
+					sram_addr <= bus_addr;
+					sram_dq <= bus_dq;
+					sram_we_n <= '1';
+					sram_oe_n <= '1';
+					if(bus_rw = '0' and bus_req = '1') then
+						state <= r0;
+						sram_oe_n <= '0';
+					elsif(bus_rw = '1' and bus_req = '1') then
+						state <= w0;
+						sram_we_n <= '0';
+					end if;
+				when r0 =>
+					state <= r1;
+				when r1 =>
+					state <= idle;
+				when w0 =>
+					state <= w1;
+				when w1 =>
+					state <= idle;
+				when others =>
+					state <= idle;
+				end case;
+		end if;
+	end process;
+
+end architecture;
+

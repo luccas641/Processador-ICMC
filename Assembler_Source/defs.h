@@ -10,8 +10,8 @@
 #define STOREIMED_CODE          86
 #define STOREINDEX_CODE         87
 #define MOV_CODE                3
-#define OUTCHAR_CODE            4
-#define INCHAR_CODE             5
+#define OUT_CODE            4
+#define IN_CODE             5
 #define ADD_CODE                6
 #define ADDC_CODE               7
 #define SUB_CODE                8
@@ -101,6 +101,8 @@
 #define NOP_CODE                0
 #define INPUT_CODE              96
 #define OUTPUT_CODE             97
+#define EI_CODE             98
+#define DI_CODE             99
 
 /* Definicoes dos op codes (binarios em strings) */
 
@@ -118,8 +120,10 @@
 #define OUTPUT          "111111"
 
 /* I/O Instructions: */
-#define OUTCHAR         "110010"
-#define INCHAR          "110101"
+#define OUT         "110010"
+#define IN          "110101"
+#define EI          "110111"
+#define DI          "110111"
 
 /* Aritmethic Instructions(All should begin with "10"):	*/
 #define ADD             "100000"
@@ -188,8 +192,10 @@
 #define STOREINDEX_STR          "STOREI"
 
 #define MOV_STR                 "MOV"
-#define INCHAR_STR              "INCHAR"
-#define OUTCHAR_STR             "OUTCHAR"
+#define IN_STR              "IN"
+#define OUT_STR             "OUT"
+#define EI_STR              "EI"
+#define DI_STR              "DI"
 
 #define INPUT_STR               "INPUT"
 #define OUTPUT_STR              "OUTPUT"

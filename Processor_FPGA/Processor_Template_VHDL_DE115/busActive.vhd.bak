@@ -1,0 +1,15 @@
+LIBRARY IEEE;
+USE  IEEE.STD_LOGIC_1164.all;
+USE  IEEE.STD_LOGIC_ARITH.all;
+USE  IEEE.STD_LOGIC_UNSIGNED.all;
+
+ENTITY busActive IS
+	PORT(	bus_addr : in std_logic_vector(15 downto 0);
+			bus_req 	: in std_logic;
+			bus_rw	: in std_logic;
+			en			: out std_logic;
+END busActive;
+
+ARCHITECTURE behavioral OF busActive IS
+
+END behavioral;

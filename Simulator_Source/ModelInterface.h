@@ -35,6 +35,12 @@ class ModelInterface
 		virtual bool getFR(int N) = 0;
 		virtual void setFR(int N, bool valor) = 0;
 
+		virtual bool getC0(int N) = 0;
+		virtual void setC0(int N, bool valor) = 0;
+
+
+		virtual bool getIRQ(int N) = 0;
+		virtual void setIRQ(int N, bool valor) = 0;
 
 		// Instrucoes
 		virtual void processa() = 0;

@@ -36,6 +36,8 @@ void Model::updateAll()
 	Reg->updatePC();
 	Reg->updateIR();
 	Reg->updateSP();
+	Reg->updateC0();
+	Reg->updateIRQ();
 }
 
 
@@ -102,6 +104,14 @@ void Model::reset()
 
 	for(i = 16; i-- ; )
 		setFR(i, 0);
+
+
+	for(i = 16; i-- ; )
+		setC0(i, 0);
+
+
+	for(i = 16; i-- ; )
+		setIRQ(i, 0);
 
 	Ins->updateInstrucoes(0, tmp, N_LINHAS);		// termina imprimindo o resultado
 }
@@ -171,6 +181,26 @@ void Model::setFR(int N, bool valor)
 {	if(valor >= 0)
 		FR[N] = valor;
 	Reg->updateFR();
+}
+
+// -------- C0 -----------
+bool Model::getC0(int N)
+{	return c0[N];	}
+
+void Model::setC0(int N, bool valor)
+{	if(valor >= 0)
+		c0[N] = valor;
+	Reg->updateC0();
+}
+
+// -------- IRQ -----------
+bool Model::getIRQ(int N)
+{	return IRQ[N];	}
+
+void Model::setIRQ(int N, bool valor)
+{	if(valor >= 0)
+		IRQ[N] = valor;
+	Reg->updateIRQ();
 }
 
 
@@ -491,31 +521,56 @@ void Model::processador()
 
   switch(opcode)
 	{ case INCHAR:
-				//timeout(9999);    // tempo que espera pelo getch()
-        key = controller->getKey();//getch();
-        //timeout(0);    		// tempo que espera pelo getch()
-        reg[rx] = pega_pedaco(key,7,0);
+			if(reg[ry] == 0x900){//Keyboard
+		        key = controller->getKey();//getch();
+		        reg[rx] = pega_pedaco(key,7,0);
+		    }else if(reg[ry] >= 0x990 && reg[ry] <= 0x994){//PIT
 
-        //if(reg[rx] != 255)
-			//reg[rx] = pega_pedaco(reg[rx],5,0);
-			break;
+		    }else{
+				cout << "Erro: Voce tentou usar uma porta nao implementada"<< endl;
+			}
+		break;
 
     case OUTCHAR:
-			if(reg[ry] > 1199 || reg[ry] < 0)
-			{	cout << "ERRO - tentou escrever na posição da tela: " << reg[ry] << endl;
-				break;
+			if(reg[ry] >=0 && reg[ry] < 1200) //Video
+			{	
+				letra = reg[rx] & 0x7f;
+
+				if(letra > 0)
+	      			temp = letra;// + 32;
+				else
+					temp = 0;
+
+			    block[reg[ry]].color = pega_pedaco(reg[rx], 11, 8);
+			    block[reg[ry]].sym = temp * 8;
+				Vid->updateVideo(reg[ry]);
+			}else if(reg[ry] >= 0x901 && reg[ry] <= 0x902){ //com1
+
+			}else if(reg[ry] >= 0x990 && reg[ry] <= 0x994){//PIT
+				if(reg[ry] == 0x990){
+					t.setD0(reg[rx]);
+				}else if(reg[ry] == 0x991){
+					t.setD1(reg[rx]);					
+				}else if(reg[ry] == 0x992){
+					t.setD2(reg[rx]);					
+				}else if(reg[ry] == 0x993){
+					t.setC(reg[rx]);		
+				}
+			}else{
+				cout << "Erro: Voce tentou usar uma porta nao implementada"<< endl;
 			}
 
-			letra = reg[rx] & 0x7f;
+			break;
 
-			if(letra > 0)
-      	temp = letra;// + 32;
-			else
-				temp = 0;
-
-      block[reg[ry]].color = pega_pedaco(reg[rx], 11, 8);
-      block[reg[ry]].sym = temp * 8;
-			Vid->updateVideo(reg[ry]);
+		case EI:
+			switch(pega_pedaco(ir,0,0)){
+				case 0:
+					c0[0] = 0;
+					break;
+				default:
+					c0[0] = 1;
+					break;
+			}
 			break;
 
 		case MOV:
@@ -681,6 +736,7 @@ void Model::processador()
       	sp++;
         pc = mem[sp];
         pc++;
+        c0[1] = 0;
         break;
 
       case ADD:
@@ -805,12 +861,86 @@ void Model::processador()
 				//printf("Rx: %d	Ry: %d	Rz: %d\nPC: %d	IR: %d	opcode: %d\n\n", rx, ry, rz, pc, ir, opcode);
 				break;
     }
+
+     /* Ciclo de interrupcao */
+  if(IRQ[3] && !c0[1] && c0[0]){
+  	c0[1] = 1;
+    mem[sp] = reg[pc];
+    sp--;
+
+    /* Executa interrupcao */
+	  if(IRQ[0]){
+	  		pc = mem[0x3f00];
+	  		IRQ[0] = 0;
+	  }
+	  else if(IRQ[1]){
+	  		pc = mem[0x3f01];
+	  		IRQ[1] = 0;
+	  }
+	  else if(IRQ[2]){
+	  		pc = mem[0x3f02];
+	  		IRQ[2] = 0;
+	  }
+	  else if(IRQ[3]){
+	  		pc = mem[0x3f03];
+	  		IRQ[3] = 0;
+	  }
+	  else if(IRQ[4]){
+	  		pc = mem[0x3f04];
+	  		IRQ[4] = 0;
+	  }
+	  else if(IRQ[5]){
+	  		pc = mem[0x3f05];
+	  		IRQ[5] = 0;
+	  }
+	  else if(IRQ[6]){
+	  		pc = mem[0x3f06];
+	  		IRQ[6] = 0;
+	  }
+	  else if(IRQ[7]){
+	  		pc = mem[0x3f07];
+	  		IRQ[7] = 0;
+	  }
+	  else if(IRQ[8]){
+	  		pc = mem[0x3f08];
+	  		IRQ[8] = 0;
+	  }
+	  else if(IRQ[9]){
+	  		pc = mem[0x3f09];
+	  		IRQ[9] = 0;
+	  }
+	  else if(IRQ[10]){
+	  		pc = mem[0x3f0a];
+	  		IRQ[10] = 0;
+	  }
+	  else if(IRQ[11]){
+	  		pc = mem[0x3f0b];
+	  		IRQ[11] = 0;
+	  }
+	  else if(IRQ[12]){
+	  		pc = mem[0x3f0c];
+	  		IRQ[12] = 0;
+	  }
+	  else if(IRQ[13]){
+	  		pc = mem[0x3f0d];
+	  		IRQ[13] = 0;
+	  }
+	  else if(IRQ[14]){
+	  		pc = mem[0x3f0e];
+	  		IRQ[14] = 0;
+	  }
+	  else if(IRQ[15]){
+	  		pc = mem[0x3f0f];
+	  		IRQ[15] = 0;
+	  }
+  }
+
 	auxpc = pc;
 
 	int ir2;
 
 	// ----- Ciclo de Busca: --------
-  ir2 = mem[pc];
+    ir2 = mem[pc];
 	pc2 = pc + 1;
 	// ----------- -- ---------------
 

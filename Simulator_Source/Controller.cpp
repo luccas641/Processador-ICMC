@@ -103,28 +103,12 @@ bool Controller::userInput(const char *tecla)
 		{	reset(); 
 			return TRUE;
 		}
-		else if( !strcmp(tecla, "Left") )
-		{	key = 14;
-			return FALSE;
-		}
-		else if( !strcmp(tecla, "Right") )
-		{	key = 15;
-			return FALSE;
-		}
-		else if( !strcmp(tecla, "Up") )
-		{	key = 16;
-			return FALSE;
-		}
-		else if( !strcmp(tecla, "Down") )
-		{	key = 17;
-			return FALSE;
-		}
-		
 		return FALSE;
 	}
 
 	
 	key = tecla[0];
+	model->setIRQ(3,true);
 	//return FALSE;
 	
 	return FALSE; // TRUE para impedir que o evento continue para os filhos, FALSE para permitir
@@ -171,3 +155,7 @@ int Controller::getKey()
 	return aux;
 }
 
+
+void Controller::irq(unsigned n){
+	model->setIRQ(n,true);	
+}

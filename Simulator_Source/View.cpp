@@ -93,6 +93,25 @@ void View::updateFR()
 	gtk_label_set_text(GTK_LABEL (labelFR), texto);
 }
 
+void View::updateC0()
+{	for(int i=16; i--; )
+		c0[i] = model->getC0(i);
+
+	char texto[32];
+
+	sprintf(texto, "C0: %d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d", c0[15], c0[14], c0[13], c0[12], c0[11], c0[10], c0[9], c0[8], c0[7], c0[6], c0[5], c0[4], c0[3], c0[2], c0[1], c0[0]);
+	gtk_label_set_text(GTK_LABEL (labelC0), texto);
+}
+
+void View::updateIRQ()
+{	for(int i=16; i--; )
+		IRQ[i] = model->getIRQ(i);
+
+	char texto[32];
+
+	sprintf(texto, "IRQ: %d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d", IRQ[15], IRQ[14], IRQ[13], IRQ[12], IRQ[11], IRQ[10], IRQ[9], IRQ[8], IRQ[7], IRQ[6], IRQ[5], IRQ[4], IRQ[3], IRQ[2], IRQ[1], IRQ[0]);
+	gtk_label_set_text(GTK_LABEL (labelIRQ), texto);
+}
 void View::updateRegistradores()
 {	char texto[6];
 	char opt[5];
@@ -218,8 +237,16 @@ void View::show_program(int linha, int pc, int sp)
 	char texto[128];
 
   switch(model->pega_pedaco(ir,15,10))
-	{ case INCHAR: 	sprintf(texto, "PC: %05d\t|	INCHAR R%d			|	R%d        <- teclado", 			pc, _rx, _rx);		 			 break;
-		case OUTCHAR:	sprintf(texto, "PC: %05d\t|	OUTCHAR R%d, R%d	|	video[R%d] <- char[R%d]", pc, _rx, _ry, _rx, _ry); break;
+	{ case INCHAR: 	sprintf(texto, "PC: %05d\t|	IN  R%d, R%d	|	R%d      <- bus[R%d]", 			pc, _rx,_ry, _rx,_ry);		 			 break;
+	  case OUTCHAR:	sprintf(texto, "PC: %05d\t|	OUT R%d, R%d	|	bus[R%d] <- R%d", pc, _rx, _ry, _rx, _ry); break;
+	  case EI:	
+	  	switch(model->pega_pedaco(ir,0,0)){
+	  		case 1:
+	  			sprintf(texto, "PC: %05d\t|	EI			|	C0[0] <= 1", pc); break;
+	  		default:
+	  			sprintf(texto, "PC: %05d\t|	DI			|	C0[0] <= 0", pc); break;
+	  	}
+	  	break;
     case MOV:
 			switch(model->pega_pedaco(ir,1,0))
 			{	case 0:  sprintf(texto,"PC: %05d\t|	MOV R%d, R%d			|	R%d <- R%d", 	pc, _rx, _ry, _rx, _ry); break;
@@ -334,7 +361,7 @@ void View::show_program(int linha, int pc, int sp)
 
     case HALT: sprintf(texto, "PC: %05d\t|	HALT				|	Pausa a execucao", pc); break;
 
-    case NOP:	sprintf(texto, "PC: %05d\t|	NOOP				|	Do nothing", pc); break;
+    case NOP:	sprintf(texto, "PC: %05d\t|	NOOP %x				|	Do nothing", pc, model->getMem(pc)); break;
 
     case BREAKP: sprintf(texto, "PC: %05d\t|	BREAKP #%05d		|	Break Point", pc, model->pega_pedaco(ir,9,0)); break;
 
@@ -354,7 +381,7 @@ void View::criaJanela(const char *nome)
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
 	gtk_widget_set_size_request(window, 1024, -1);
-	gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
+	gtk_window_set_resizable(GTK_WINDOW(window), true);
 
 	gtk_window_set_decorated(GTK_WINDOW(window), TRUE);
 
@@ -483,9 +510,16 @@ void View::criarLabelsSuperior(GtkWidget *vbox)
 	gtk_fixed_put (GTK_FIXED (fixed), labelPc, 790, 10);
 
 	labelFR = gtk_label_new ("FR: 0000000000000000");
-	gtk_fixed_put (GTK_FIXED (fixed), labelFR, 860, 10);
+	gtk_fixed_put (GTK_FIXED (fixed), labelFR, 10, 40);
 
-	gtk_box_pack_start (GTK_BOX (vbox), fixed, TRUE, TRUE, 0);
+	labelC0 = gtk_label_new ("C0: 0000000000000000");
+	gtk_fixed_put (GTK_FIXED (fixed), labelC0, 160, 40);
+
+
+	labelIRQ = gtk_label_new ("IRQ: 0000000000000000");
+	gtk_fixed_put (GTK_FIXED (fixed), labelIRQ, 310, 40);
+
+	gtk_box_pack_start (GTK_BOX (vbox), fixed, false, TRUE, 0);
 }
 
 void View::criarLabelsInferior(GtkWidget *vbox)
@@ -504,17 +538,17 @@ void View::criarLabelsInferior(GtkWidget *vbox)
 	gtk_fixed_put(GTK_FIXED (fixed), labelEnd, 710, 0);
 	gtk_fixed_put(GTK_FIXED (fixed), labelR, 430, 20);
 
-	gtk_box_pack_start (GTK_BOX (vbox), fixed, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (vbox), fixed, false, TRUE, 0);
 }
 
 void View::criarAreaVisualizacao(GtkWidget *hbox)
 { GtkWidget *outputframe = gtk_frame_new("Viewport");
 
 	outputarea = gtk_drawing_area_new();
-	gtk_widget_set_size_request(outputarea , 645, 487);
+	gtk_widget_set_size_request(outputarea , 645, 485);
 
 	gtk_container_add(GTK_CONTAINER(outputframe), outputarea);
-	gtk_box_pack_start (GTK_BOX (hbox), outputframe, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), outputframe, false, TRUE, 0);
 
 	g_signal_connect (G_OBJECT (outputarea), "expose_event", G_CALLBACK(ViewerExpose), this);
 }
@@ -541,7 +575,7 @@ void View::criarAreaTexto(GtkWidget *hbox)
 	GtkWidget *frameMemoria = gtk_frame_new("Memória");
 
   gtk_container_add(GTK_CONTAINER(frameMemoria), textview);
-	gtk_box_pack_start(GTK_BOX (hbox), frameMemoria, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX (hbox), frameMemoria, false, TRUE, 0);
 
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(textview), FALSE);
 }
@@ -560,7 +594,6 @@ gboolean View::teclado(GtkWidget *widget, GdkEventKey *event, gpointer data)
 		tecla[1] = 0;	
 	} 
 
-	//cout << tecla << endl;	
 	return (gboolean) controller->userInput(tecla);
 }
 

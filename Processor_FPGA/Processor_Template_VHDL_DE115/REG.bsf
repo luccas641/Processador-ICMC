@@ -4,7 +4,7 @@ editor if you plan to continue editing the block that represents it in
 the Block Editor! File corruption is VERY likely to occur.
 */
 /*
-Copyright (C) 1991-2010 Altera Corporation
+Copyright (C) 1991-2013 Altera Corporation
 Your use of Altera Corporation's design tools, logic functions 
 and other software and tools, and its AMPP partner logic 
 functions, and any output files from any of the foregoing 
@@ -18,49 +18,53 @@ programming logic devices manufactured by Altera and sold by
 Altera or its authorized distributors.  Please refer to the 
 applicable agreement for further details.
 */
-(header "symbol" (version "1.2"))
+(header "symbol" (version "1.1"))
 (symbol
-	(rect 64 64 168 176)
-	(text "REG" (rect 5 0 29 11)(font "Arial" ))
-	(text "inst" (rect 8 96 26 107)(font "Arial" ))
-	(port
-		(pt 0 72)
-		(input)
-		(text "CLR" (rect 0 8 23 19)(font "Arial" ))
-		(text "CLR" (rect 25 64 48 75)(font "Arial" ))
-		(line (pt 0 72)(pt 16 72))
-	)
-	(port
-		(pt 0 88)
-		(input)
-		(text "LOAD" (rect 0 8 30 19)(font "Arial" ))
-		(text "LOAD" (rect 25 80 55 91)(font "Arial" ))
-		(line (pt 0 88)(pt 17 88))
-	)
+	(rect 16 16 208 128)
+	(text "REG" (rect 5 0 27 12)(font "Arial" ))
+	(text "inst" (rect 8 96 20 108)(font "Arial" ))
 	(port
 		(pt 0 32)
 		(input)
-		(text "CLK" (rect 0 8 23 19)(font "Arial" ))
-		(text "CLK" (rect 21 27 44 38)(font "Arial" )(invisible))
-		(line (pt 0 32)(pt 16 32))
+		(text "CLK" (rect 0 0 20 12)(font "Arial" ))
+		(text "CLK" (rect 21 27 41 39)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32)(line_width 1))
 	)
 	(port
-		(pt 0 56)
+		(pt 0 48)
 		(input)
-		(text "I[15..0]" (rect 0 8 35 19)(font "Arial" ))
-		(text "I" (rect 21 51 24 62)(font "Arial" ))
-		(line (pt 0 56)(pt 16 56)(line_width 3))
+		(text "CLR" (rect 0 0 21 12)(font "Arial" ))
+		(text "CLR" (rect 21 43 42 55)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48)(line_width 1))
 	)
 	(port
-		(pt 104 56)
+		(pt 0 64)
+		(input)
+		(text "LOAD" (rect 0 0 28 12)(font "Arial" ))
+		(text "LOAD" (rect 21 59 49 71)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64)(line_width 1))
+	)
+	(port
+		(pt 0 80)
+		(input)
+		(text "I[width-1..0]" (rect 0 0 42 12)(font "Arial" ))
+		(text "I[width-1..0]" (rect 21 75 63 87)(font "Arial" ))
+		(line (pt 0 80)(pt 16 80)(line_width 3))
+	)
+	(port
+		(pt 192 32)
 		(output)
-		(text "O[15..0]" (rect -64 8 -24 19)(font "Arial" ))
-		(text "O" (rect 75 51 84 62)(font "Arial" ))
-		(line (pt 104 56)(pt 88 56)(line_width 3))
+		(text "O[width-1..0]" (rect 0 0 47 12)(font "Arial" ))
+		(text "O[width-1..0]" (rect 124 27 171 39)(font "Arial" ))
+		(line (pt 192 32)(pt 176 32)(line_width 3))
 	)
+	(parameter
+		"width"
+		"16"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
 	(drawing
-		(line (pt 16 24)(pt 24 32))
-		(line (pt 24 32)(pt 16 40))
-		(rectangle (rect 16 16 88 96))
+		(rectangle (rect 16 16 176 96)(line_width 1))
 	)
+	(annotation_block (parameter)(rect 208 -64 308 16))
 )

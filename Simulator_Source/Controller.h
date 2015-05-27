@@ -45,6 +45,8 @@ class Controller : public ControllerInterface
 
 
 		void notifyProcessamento();
+
+		void irq(unsigned);
 };
 
 #endif

@@ -54,3 +54,58 @@ wizard.lst file in the specified library path(s).Wizard launch aborted
 
 Sep 14 06PM:03:12>: Megafunction LPM_RAM_DQ is not listed in any 
 wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/Users/--Luke/Desktop/AP9 - Template/lpm_dff1.vhd
+
+Mar 02 09PM:12:27>: Megafunction LPM_FF is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/Users/--Luke/Desktop/AP9 - Template/lpm_dff1.vhd
+
+Mar 02 09PM:12:47>: Megafunction LPM_FF is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+D:/desktop/AP9 - Template/lpm_dff2.vhd
+
+Mar 11 01AM:00:29>: Megafunction LPM_FF is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+D:/desktop/AP9 - Template/lpm_dff2.vhd
+
+Mar 11 01AM:01:12>: Megafunction LPM_FF is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+D:/desktop/AP9 - Template/lpm_ram_dq1.vhd
+
+Mar 20 03PM:36:20>: Megafunction LPM_RAM_DQ is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+D:/desktop/AP9 - Template/lpm_ram_dq1.vhd
+
+Mar 20 03PM:36:34>: Megafunction LPM_RAM_DQ is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+D:/desktop/AP9 - Template/lpm_ram_dq1.vhd
+
+Mar 25 09AM:47:19>: Megafunction LPM_RAM_DQ is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+D:/desktop/AP9 - Template/lpm_ram_dq1.vhd
+
+Mar 25 09AM:47:28>: Megafunction LPM_RAM_DQ is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+D:/desktop/AP9 - Template/lpm_ram_dq1.vhd
+
+Apr 08 11AM:19:19>: Megafunction LPM_RAM_DQ is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+D:/desktop/AP9 - Template/lpm_ram_dq1.vhd
+
+Apr 08 11AM:30:22>: Megafunction LPM_RAM_DQ is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+D:/desktop/AP9 - Template/lpm_ram_dq1.vhd
+
+Apr 08 11AM:30:24>: Megafunction LPM_RAM_DQ is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted

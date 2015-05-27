@@ -215,7 +215,7 @@ void DetectarLabels(void)
             /* Instrucoes de 2 argumentos e 1 linha : instr (), () -> [...] */
             case NOT_CODE :	/* Eu pus aqui pois sera' Rx <- Not Ry */
 	    case MOV_CODE :
-            case OUTCHAR_CODE :
+            case OUT_CODE :
             case CMP_CODE :
                 parser_SkipUntil(',');
                 parser_SkipUntilEnd();
@@ -258,7 +258,7 @@ void DetectarLabels(void)
                 break;
 
             /* Instrucoes de 1 argumento e 1 linha : instr () -> [...] */
-            case INCHAR_CODE :
+            case IN_CODE :
             case INC_CODE :
             case DEC_CODE :
 /*            case NOT_CODE :  */
@@ -291,6 +291,8 @@ void DetectarLabels(void)
 
             /* Instrucoes sem argumentos e 1 linha : instr -> [...] */
             case RTS_CODE :
+			case EI_CODE :
+			case DI_CODE :
             case RTI_CODE :
             case HALT_CODE :
             case BREAKP_CODE :	    
@@ -546,34 +548,34 @@ void MontarInstrucoes(void)
                     str_tmp2 = parser_GetItem_s();
                     val2 = BuscaRegistrador(str_tmp2);
                     free(str_tmp2);
-		    if(val1 == SP_CODE){
-			str_tmp2 = ConverteRegistrador(val2);
-			sprintf(str_msg,"%s%s0000011",MOV,str_tmp2);
-			free(str_tmp2);
-			}
-		    else if(val2 == SP_CODE){
-			str_tmp1 = ConverteRegistrador(val1);
-			sprintf(str_msg,"%s%s0000001",MOV,str_tmp1);
-			free(str_tmp1);
-			}
-		    else {
-			str_tmp1 = ConverteRegistrador(val1);
-			str_tmp2 = ConverteRegistrador(val2);
-			sprintf(str_msg,"%s%s%s0000",MOV,str_tmp1,str_tmp2);
-			free(str_tmp1);
-			free(str_tmp2);
-			}
-		    
+					if(val1 == SP_CODE){
+					str_tmp2 = ConverteRegistrador(val2);
+					sprintf(str_msg,"%s%s0000011",MOV,str_tmp2);
+					free(str_tmp2);
+					}
+					else if(val2 == SP_CODE){
+					str_tmp1 = ConverteRegistrador(val1);
+					sprintf(str_msg,"%s%s0000001",MOV,str_tmp1);
+					free(str_tmp1);
+					}
+					else {
+					str_tmp1 = ConverteRegistrador(val1);
+					str_tmp2 = ConverteRegistrador(val2);
+					sprintf(str_msg,"%s%s%s0000",MOV,str_tmp1,str_tmp2);
+					free(str_tmp1);
+					free(str_tmp2);
+					}
+					
                     parser_Write_Inst(str_msg,end_cnt);
                     end_cnt += 1;
                     break;                    
 
                 /* ==============
-                   Outchar Rx, Ry
+                   Out Rx, Ry
                    ==============
                 */
 
-                case OUTCHAR_CODE :
+                case OUT_CODE :
                     str_tmp1 = parser_GetItem_s();
                     val1 = BuscaRegistrador(str_tmp1);
                     free(str_tmp1);
@@ -583,7 +585,7 @@ void MontarInstrucoes(void)
                     free(str_tmp2);
                     str_tmp1 = ConverteRegistrador(val1);
                     str_tmp2 = ConverteRegistrador(val2);
-                    sprintf(str_msg,"%s%s%s0000",OUTCHAR,str_tmp1,str_tmp2);
+                    sprintf(str_msg,"%s%s%s0000",OUT,str_tmp1,str_tmp2);
                     free(str_tmp1);
                     free(str_tmp2);
                     parser_Write_Inst(str_msg,end_cnt);
@@ -591,21 +593,38 @@ void MontarInstrucoes(void)
                     break;
 
                 /* ==============
-                   Inchar Rx
+                   In Rx Ry
                    ==============
                 */
 
-                case INCHAR_CODE :
+                case IN_CODE :
                     str_tmp1 = parser_GetItem_s();
                     val1 = BuscaRegistrador(str_tmp1);
                     free(str_tmp1);
+                    parser_Match(',');
+                    str_tmp2 = parser_GetItem_s();
+                    val2 = BuscaRegistrador(str_tmp2);
+                    free(str_tmp2);
                     str_tmp1 = ConverteRegistrador(val1);
-                    sprintf(str_msg,"%s%s0000000",INCHAR,str_tmp1);
+                    str_tmp2 = ConverteRegistrador(val2);
+                    sprintf(str_msg,"%s%s%s0000",IN,str_tmp1, str_tmp2);
                     free(str_tmp1);
+                    free(str_tmp2);
                     parser_Write_Inst(str_msg,end_cnt);
                     end_cnt += 1;
                     break;
 
+				case EI_CODE :
+                    sprintf(str_msg,"%s0000000001",EI);
+                    parser_Write_Inst(str_msg,end_cnt);
+                    end_cnt += 1;
+                    break;
+					
+				case DI_CODE :
+                    sprintf(str_msg,"%s0000000000",DI);
+                    parser_Write_Inst(str_msg,end_cnt);
+                    end_cnt += 1;
+                    break;
                 /* ==============
                    Add Rx, Ry, Rz
                    ==============
@@ -2220,13 +2239,13 @@ int BuscaInstrucao(char * nome)
     {
         return MOV_CODE;
     }
-    else if (strcmp(str_tmp,INCHAR_STR) == 0)
+    else if (strcmp(str_tmp,IN_STR) == 0)
     {
-        return INCHAR_CODE;
+        return IN_CODE;
     }
-    else if (strcmp(str_tmp,OUTCHAR_STR) == 0)
+    else if (strcmp(str_tmp,OUT_STR) == 0)
     {
-        return OUTCHAR_CODE;
+        return OUT_CODE;
     }
     else if (strcmp(str_tmp,ADD_STR) == 0)
     {
@@ -2576,6 +2595,14 @@ int BuscaInstrucao(char * nome)
     {
         return NOP_CODE;
     }
+	else if (strcmp(nome,DI_STR) == 0)
+    {
+        return DI_CODE;
+    }
+	else if (strcmp(nome,EI_STR) == 0)
+    {
+        return EI_CODE;
+    }
 
     /* Pseudo-instrucoes */
     else if (strcmp(str_tmp,EQU_STR) == 0)
@@ -2722,18 +2749,6 @@ unsigned short RecebeNumero(void)
                 {
                 case 'n' :
                     ret = (unsigned short)'\n';
-                    break;
-                case 'L' :
-                    ret = (unsigned short) 14;
-                    break;
-                case 'R' :
-                    ret = (unsigned short) 15;
-                    break;
-                case 'U' :
-                    ret = (unsigned short) 16;
-                    break;
-                case 'D' :
-                    ret = (unsigned short) 17;
                     break;
                 case '0' :
                     ret = (unsigned short)'\0';

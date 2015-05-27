@@ -1,0 +1,35 @@
+LIBRARY IEEE;
+USE  IEEE.STD_LOGIC_1164.ALL;
+USE  IEEE.STD_LOGIC_ARITH.ALL;
+USE  IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+ENTITY swController IS
+	PORT(
+			dq : inout STD_LOGIC_VECTOR(15 downto 0);
+			bus_dq : inout STD_LOGIC_VECTOR(15 DOWNTO 0);
+			int : out std_logic;
+			cpu_ack : in std_logic;
+			rst : in std_logic
+		);
+END swController;
+
+ARCHITECTURE behavioral OF swController IS
+SIGNAL data : STD_LOGIC_VECTOR(15 DOWNTO 0);
+BEGIN
+	PROCESS(d, cpu_ack)
+	BEGIN
+		if(rst = '1') then
+			data <= (others => '0');
+			int <= '0';
+		elsif(unsigned(d) /= unsigned(data)) then
+			data <= d;
+			int <= '1';
+		elsif (cpu_ack= '1')then
+			int <= '0';
+		end if;
+	END PROCESS;
+
+q <= data when cpu_ack = '1' else
+			(others => 'Z');
+
+END behavioral;
