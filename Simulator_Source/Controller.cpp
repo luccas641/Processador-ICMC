@@ -77,7 +77,7 @@ int Controller::charToInt(const char *string)
 }
 
 bool Controller::userInput(const char *tecla)
-{	key = 255;
+{	
 
 	if( strlen(tecla) > 1)
 	{	if( !strcmp(tecla,"End") )
@@ -107,8 +107,11 @@ bool Controller::userInput(const char *tecla)
 	}
 
 	
-	key = tecla[0];
-	model->setIRQ(3,true);
+	if(tecla[0]!=255){
+		key = tecla[0];
+		model->setIRQ(3,true);
+	}
+
 	//return FALSE;
 	
 	return FALSE; // TRUE para impedir que o evento continue para os filhos, FALSE para permitir

@@ -69,6 +69,8 @@ Model::Model(char *cpuram, char *charmap)
 
 	block = (pixblock*) malloc( sizeof(pixblock) * 1200 );
 	resetVideo();
+
+	t = new PIT(controller);
 }
 
 Model::~Model()
@@ -76,7 +78,9 @@ Model::~Model()
 
 
 void Model::setController(ControllerInterface *controller)
-{	this->controller = controller; }
+{	this->controller = controller; 
+	t->c = controller;
+}
 
 void Model::reset()
 {	pc = 0;
@@ -532,6 +536,7 @@ void Model::processador()
 		break;
 
     case OUTCHAR:
+    		printf("%x %x\n", reg[rx], reg[ry]);
 			if(reg[ry] >=0 && reg[ry] < 1200) //Video
 			{	
 				letra = reg[rx] & 0x7f;
@@ -548,13 +553,13 @@ void Model::processador()
 
 			}else if(reg[ry] >= 0x990 && reg[ry] <= 0x994){//PIT
 				if(reg[ry] == 0x990){
-					t.setD0(reg[rx]);
+					t->setD0(reg[rx]);
 				}else if(reg[ry] == 0x991){
-					t.setD1(reg[rx]);					
+					t->setD1(reg[rx]);					
 				}else if(reg[ry] == 0x992){
-					t.setD2(reg[rx]);					
+					t->setD2(reg[rx]);					
 				}else if(reg[ry] == 0x993){
-					t.setC(reg[rx]);		
+					t->setC(reg[rx]);		
 				}
 			}else{
 				cout << "Erro: Voce tentou usar uma porta nao implementada"<< endl;
@@ -735,7 +740,8 @@ void Model::processador()
       case RTS:
       	sp++;
         pc = mem[sp];
-        pc++;
+        if(!c0[1])
+       		pc++;
         c0[1] = 0;
         break;
 
@@ -862,79 +868,6 @@ void Model::processador()
 				break;
     }
 
-     /* Ciclo de interrupcao */
-  if(IRQ[3] && !c0[1] && c0[0]){
-  	c0[1] = 1;
-    mem[sp] = reg[pc];
-    sp--;
-
-    /* Executa interrupcao */
-	  if(IRQ[0]){
-	  		pc = mem[0x3f00];
-	  		IRQ[0] = 0;
-	  }
-	  else if(IRQ[1]){
-	  		pc = mem[0x3f01];
-	  		IRQ[1] = 0;
-	  }
-	  else if(IRQ[2]){
-	  		pc = mem[0x3f02];
-	  		IRQ[2] = 0;
-	  }
-	  else if(IRQ[3]){
-	  		pc = mem[0x3f03];
-	  		IRQ[3] = 0;
-	  }
-	  else if(IRQ[4]){
-	  		pc = mem[0x3f04];
-	  		IRQ[4] = 0;
-	  }
-	  else if(IRQ[5]){
-	  		pc = mem[0x3f05];
-	  		IRQ[5] = 0;
-	  }
-	  else if(IRQ[6]){
-	  		pc = mem[0x3f06];
-	  		IRQ[6] = 0;
-	  }
-	  else if(IRQ[7]){
-	  		pc = mem[0x3f07];
-	  		IRQ[7] = 0;
-	  }
-	  else if(IRQ[8]){
-	  		pc = mem[0x3f08];
-	  		IRQ[8] = 0;
-	  }
-	  else if(IRQ[9]){
-	  		pc = mem[0x3f09];
-	  		IRQ[9] = 0;
-	  }
-	  else if(IRQ[10]){
-	  		pc = mem[0x3f0a];
-	  		IRQ[10] = 0;
-	  }
-	  else if(IRQ[11]){
-	  		pc = mem[0x3f0b];
-	  		IRQ[11] = 0;
-	  }
-	  else if(IRQ[12]){
-	  		pc = mem[0x3f0c];
-	  		IRQ[12] = 0;
-	  }
-	  else if(IRQ[13]){
-	  		pc = mem[0x3f0d];
-	  		IRQ[13] = 0;
-	  }
-	  else if(IRQ[14]){
-	  		pc = mem[0x3f0e];
-	  		IRQ[14] = 0;
-	  }
-	  else if(IRQ[15]){
-	  		pc = mem[0x3f0f];
-	  		IRQ[15] = 0;
-	  }
-  }
-
 	auxpc = pc;
 
 	int ir2;
@@ -1016,5 +949,89 @@ void Model::processador()
 
 		default: break;
   }
+
+      if(opcode != RTS){
+	    bool irq = false;
+	    /* Ciclo de interrupcao */
+	    for(i=0;i<16;i++ ){
+	    	if(IRQ[i]){
+	    		irq = true;
+	    		break;
+	    	}
+	    }
+	  if(irq && !c0[1] && c0[0]){
+	  	c0[1] = 1;
+	    mem[sp] = pc2;
+	    sp--;
+	    printf("push %d\n", pc2);
+
+	    /* Executa interrupcao */
+		  if(IRQ[0]){
+		  		pc = mem[0x3f00];
+		  		IRQ[0] = 0;
+		  }
+		  else if(IRQ[1]){
+		  		pc = mem[0x3f01];
+		  		IRQ[1] = 0;
+		  }
+		  else if(IRQ[2]){
+		  		pc = mem[0x3f02];
+		  		IRQ[2] = 0;
+		  }
+		  else if(IRQ[3]){
+		  		pc = mem[0x3f03];
+		  		IRQ[3] = 0;
+		  }
+		  else if(IRQ[4]){
+		  		pc = mem[0x3f04];
+		  		IRQ[4] = 0;
+		  }
+		  else if(IRQ[5]){
+		  		pc = mem[0x3f05];
+		  		IRQ[5] = 0;
+		  }
+		  else if(IRQ[6]){
+		  		pc = mem[0x3f06];
+		  		IRQ[6] = 0;
+		  }
+		  else if(IRQ[7]){
+		  		pc = mem[0x3f07];
+		  		IRQ[7] = 0;
+		  }
+		  else if(IRQ[8]){
+		  		pc = mem[0x3f08];
+		  		IRQ[8] = 0;
+		  }
+		  else if(IRQ[9]){
+		  		pc = mem[0x3f09];
+		  		IRQ[9] = 0;
+		  }
+		  else if(IRQ[10]){
+		  		pc = mem[0x3f0a];
+		  		IRQ[10] = 0;
+		  }
+		  else if(IRQ[11]){
+		  		pc = mem[0x3f0b];
+		  		IRQ[11] = 0;
+		  }
+		  else if(IRQ[12]){
+		  		pc = mem[0x3f0c];
+		  		IRQ[12] = 0;
+		  }
+		  else if(IRQ[13]){
+		  		pc = mem[0x3f0d];
+		  		IRQ[13] = 0;
+		  }
+		  else if(IRQ[14]){
+		  		pc = mem[0x3f0e];
+		  		IRQ[14] = 0;
+		  }
+		  else if(IRQ[15]){
+		  		pc = mem[0x3f0f];
+		  		IRQ[15] = 0;
+		  }
+	  }
+	}
+
 }
 

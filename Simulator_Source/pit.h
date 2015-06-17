@@ -8,36 +8,36 @@
 #include <pthread.h>
 
 class PIT{
-
+public:
 	pthread_t threads[3];
 
-	static unsigned c0;
-	static unsigned c1;
-	static unsigned c2;
-	static unsigned con;
+	unsigned short c0;
+	unsigned short c1;
+	unsigned short c2;
+	unsigned short con;
 
-	unsigned d0;
-	unsigned d1;
-	unsigned d2;
+	unsigned short d0;
+	unsigned short d1;
+	unsigned short d2;
 
 	ControllerInterface *c;
-	public:
+	
 		PIT(ControllerInterface *c);	
 
 		static void* incC0(void* arg);
 		static void* incC1(void* arg);
 		static void* incC2(void* arg);
 
-		void setD0(unsigned);
-		void setD1(unsigned);
-		void setD2(unsigned);
+		void setD0(unsigned short);
+		void setD1(unsigned short);
+		void setD2(unsigned short);
 
-		unsigned getC0();
-		unsigned getC1();
-		unsigned getC2();
+		unsigned short getC0();
+		unsigned short getC1();
+		unsigned short getC2();
 
 
-		void setC(unsigned);
+		void setC(unsigned short);
 };
 
 

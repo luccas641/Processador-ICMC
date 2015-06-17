@@ -57,7 +57,7 @@ class Model : public ModelInterface
 		pixblock *block;
 
 		// -- Timer --
-		PIT t;
+		PIT *t;
 
 
 	public:
