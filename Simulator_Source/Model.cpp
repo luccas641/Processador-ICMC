@@ -536,7 +536,6 @@ void Model::processador()
 		break;
 
     case OUTCHAR:
-    		printf("%x %x\n", reg[rx], reg[ry]);
 			if(reg[ry] >=0 && reg[ry] < 1200) //Video
 			{	
 				letra = reg[rx] & 0x7f;
@@ -963,7 +962,6 @@ void Model::processador()
 	  	c0[1] = 1;
 	    mem[sp] = pc2;
 	    sp--;
-	    printf("push %d\n", pc2);
 
 	    /* Executa interrupcao */
 		  if(IRQ[0]){
@@ -1032,6 +1030,9 @@ void Model::processador()
 		  }
 	  }
 	}
+
+
+	printf("pc %d\n", pc);
 
 }
 

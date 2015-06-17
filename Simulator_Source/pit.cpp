@@ -1,8 +1,10 @@
 #include "pit.h"
+#include <string.h>
 
 using namespace std;
 
 PIT::PIT(ControllerInterface *con) : c(con) {
+	memset(threads, 0, 3*sizeof(pthread_t));
 }
 
 
@@ -59,7 +61,7 @@ void PIT::setC(unsigned short con){
 	this->con = con;
 	int rc;
 	printf("setc");
-	if(con & 1){
+	if(con & 1 && !threads[0]){
 		rc = pthread_create(&threads[0], NULL,
 		                  incC0, (void*)this);
 		if (rc){
@@ -70,7 +72,7 @@ void PIT::setC(unsigned short con){
 		printf("Desativa 0\n");
 	}
 
-	if(con>>1 & 1){
+	if(con>>1 & 1 && !threads[1]){
 		rc = pthread_create(&threads[1], NULL,
 		                  incC1, (void*)this);
 		if (rc){
@@ -81,7 +83,7 @@ void PIT::setC(unsigned short con){
 		printf("Desativa 1\n");
 	}
 
-	if(con>>2 & 1){
+	if(con>>2 & 1 && !threads[2]){
 		rc = pthread_create(&threads[2], NULL,
 		                  incC2, (void*)this);
 		if (rc){
