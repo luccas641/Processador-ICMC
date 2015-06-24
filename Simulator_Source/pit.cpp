@@ -4,6 +4,9 @@
 using namespace std;
 
 PIT::PIT(ControllerInterface *con) : c(con) {
+	pthread_cancel(threads[0]);
+	pthread_cancel(threads[1]);
+	pthread_cancel(threads[2]);
 	memset(threads, 0, 3*sizeof(pthread_t));
 }
 
@@ -68,8 +71,9 @@ void PIT::setC(unsigned short con){
 		 cout << "Error:unable to create thread C0," << rc << endl;
 		 exit(-1);
 		}
-	}else{
-		printf("Desativa 0\n");
+	}else if(threads[0]){
+		pthread_cancel(threads[0]);
+		memset(&threads[0], 0, sizeof(pthread_t));
 	}
 
 	if(con>>1 & 1 && !threads[1]){
@@ -79,19 +83,21 @@ void PIT::setC(unsigned short con){
 		 cout << "Error:unable to create thread C0," << rc << endl;
 		 exit(-1);
 		}
-	}else{
-		printf("Desativa 1\n");
+	}else if(threads[1]){
+		pthread_cancel(threads[1]);
+		memset(&threads[1], 0, sizeof(pthread_t));
 	}
 
-	if(con>>2 & 1 && !threads[2]){
+	if(con>>2 & 1  && !threads[2]){
 		rc = pthread_create(&threads[2], NULL,
 		                  incC2, (void*)this);
 		if (rc){
 		 cout << "Error:unable to create thread C0," << rc << endl;
 		 exit(-1);
 		}
-	}else{
-		printf("Desativa 2\n");
+	}else if(threads[2]){
+		pthread_cancel(threads[2]);
+		memset(&threads[2], 0, sizeof(pthread_t));
 	}
 }
 

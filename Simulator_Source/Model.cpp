@@ -10,7 +10,8 @@ void* processaAutomatico(void *data)
 	int contador = 0;
 
 	while( model->getProcessamento() ) // automatico
-	{	gdk_threads_enter();
+	{	
+		gdk_threads_enter();
 		model->processador();
 		gdk_threads_leave();
 
@@ -25,6 +26,7 @@ void* processaAutomatico(void *data)
 	gdk_threads_enter();
 	model->updateAll();
 	gdk_threads_leave();
+
 
 	return NULL;
 }
@@ -194,7 +196,7 @@ bool Model::getC0(int N)
 void Model::setC0(int N, bool valor)
 {	if(valor >= 0)
 		c0[N] = valor;
-	Reg->updateC0();
+	//Reg->updateC0();
 }
 
 // -------- IRQ -----------
@@ -204,7 +206,7 @@ bool Model::getIRQ(int N)
 void Model::setIRQ(int N, bool valor)
 {	if(valor >= 0)
 		IRQ[N] = valor;
-	Reg->updateIRQ();
+	//Reg->updateIRQ();
 }
 
 
@@ -273,7 +275,8 @@ pixblock* Model::getPixblock()
 {	return block; }
 
 void Model::resetVideo()
-{	for(int i=1200; i--; )
+{	
+	for(int i=1200; i--; )
 	{	block[i].color = BLACK;
 		block[i].sym = 0;
 	}
@@ -1030,9 +1033,5 @@ void Model::processador()
 		  }
 	  }
 	}
-
-
-	printf("pc %d\n", pc);
-
 }
 

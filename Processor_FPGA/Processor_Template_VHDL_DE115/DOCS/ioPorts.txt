@@ -1,7 +1,7 @@
 Peripheral BUS
 IO ports
 R	w	 	0x0000 to 0x04AF 	video
-RW	b	 	0x04B0 to 0x8AF 	charmap
+RW	b	 	0x04B0 to 0x8AF 	sprites
 RW	w		0x08B0 to 0x8F0		paleta cores
 R	b		0x0900				keyboard		
 RW	w		0x0901 to 0x0902	com1				
