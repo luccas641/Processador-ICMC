@@ -73,6 +73,7 @@ Model::Model(char *cpuram, char *charmap)
 	resetVideo();
 
 	t = new PIT(controller);
+	flagIRQ = 0;
 }
 
 Model::~Model()
@@ -206,7 +207,7 @@ bool Model::getIRQ(int N)
 void Model::setIRQ(int N, bool valor)
 {	if(valor >= 0)
 		IRQ[N] = valor;
-	//Reg->updateIRQ();
+	flagIRQ = 1;
 }
 
 
@@ -500,7 +501,12 @@ void Model::setDelay(int valor)
 }
 
 void Model::processador()
-{ unsigned int la;
+{ 
+	if(flagIRQ == 1){
+		Reg->updateIRQ();
+		flagIRQ = 0;
+	}
+	unsigned int la;
 	unsigned int i;
 	unsigned int temp;
 	unsigned int opcode;

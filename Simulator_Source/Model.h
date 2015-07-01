@@ -58,6 +58,7 @@ class Model : public ModelInterface
 
 		// -- Timer --
 		PIT *t;
+		int flagIRQ;
 
 
 	public:
