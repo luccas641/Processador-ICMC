@@ -1340,10 +1340,9 @@ breakp_statement:
     ;
 
 in_statement:
-        IN ABRE_PARENTESES assignment_expression VIRGULA assignment_expression FECHA_PARENTESES { 
+        IN ABRE_PARENTESES assignment_expression FECHA_PARENTESES { 
         msg_sintatico("breakp in abre_parenteses primary_expression virgula primary_expression fecha_parenteses");
         if(!preProcessamento) {
-            cout << "load r0, " << stack+2 << endl;
             cout << "load r1, " << stack+1 << endl;
             cout << "in r0, r1" << endl; 
             cout << "store " << stack << ", r0" << endl;
