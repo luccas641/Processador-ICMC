@@ -112,8 +112,8 @@ eol "\n"
 "static"		            { SAVE_TOKEN; if(debug) printf("@(%d): achou %s - %s\n", yylineno, yytext, "STATIC"); return TOKEN(STATIC); }
 
 "breakp"                    { SAVE_TOKEN; if(debug) printf("@(%d): achou %s - %s\n", yylineno, yytext, "BREAKP"); return TOKEN(BREAKP); }
-"getch"                     { SAVE_TOKEN; if(debug) printf("@(%d): achou %s - %s\n", yylineno, yytext, "GETCH"); return TOKEN(GETCH); }
-"printf"                    { SAVE_TOKEN; if(debug) printf("@(%d): achou %s - %s\n", yylineno, yytext, "PRINTF"); return TOKEN(PRINTF); }
+"out"                       { SAVE_TOKEN; if(debug) printf("@(%d): achou %s - %s\n", yylineno, yytext, "OUT"); return TOKEN(OUT); }
+"in"                        { SAVE_TOKEN; if(debug) printf("@(%d): achou %s - %s\n", yylineno, yytext, "IN"); return TOKEN(IN); }
 
 {L}({L}|{D})*		        { SAVE_TOKEN; if(debug) printf("@(%d): achou %s - %s\n", yylineno, yytext, "IDENTIFIER"); return IDENTIFIER; }
 

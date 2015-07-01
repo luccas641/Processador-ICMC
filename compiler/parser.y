@@ -63,11 +63,6 @@ int offset_coluna;
 
 vector<int> initializer_list;
 
-// caso especial do printf
-int begin_printf = 0;
-vector<int> printf_args;
-int correcao_printf_string = 0;
-
 typedef enum {nenhuma, ampersand, asterisco, exclamacao, menos} operacao_unaria;
 operacao_unaria operacao = nenhuma;
 
@@ -187,7 +182,7 @@ void function_definition();
 %token <token> MENOR_MENOR MAIOR_MAIOR
 %token <token> PIPE AMPERSAND TIL
 
-%token <token> BREAKP GETCH PRINTF
+%token <token> BREAKP OUT IN
 
 
 // nao suportados
@@ -218,8 +213,11 @@ primary_expression
         push(to_str(t->busca(*$1, &declarado)->endereco), 1);
         initialization_size = 1;
 	}
-    | getch_statement {
-		msg_sintatico("getch_statement");
+    | in_statement {
+		msg_sintatico("in_statement");
+    }
+    | out_statement {
+        msg_sintatico("out_statement");
     }
     | CONSTANT	{ 
 		msg_sintatico("CONSTANT");
@@ -228,8 +226,6 @@ primary_expression
 	}
     | STRING_LITERAL	{ 
 		msg_sintatico("STRING_LITERAL");
-        if(begin_printf)
-            correcao_printf_string = stack;
 
         string aux = *$1, aux2; 
         for(int i=0; i < aux.size(); i++) { 
@@ -1333,9 +1329,6 @@ statement:
     | breakp_statement {
 		msg_sintatico("breakp_statement");
     }
-    | printf_statement {
-		msg_sintatico("printf_statement");
-    }
 	;
 
 breakp_statement:
@@ -1346,189 +1339,26 @@ breakp_statement:
     }
     ;
 
-getch_statement:
-        GETCH ABRE_PARENTESES FECHA_PARENTESES { 
-        msg_sintatico("breakp getch abre_parenteses fecha_parenteses");
+in_statement:
+        IN ABRE_PARENTESES assignment_expression VIRGULA assignment_expression FECHA_PARENTESES { 
+        msg_sintatico("breakp in abre_parenteses primary_expression virgula primary_expression fecha_parenteses");
         if(!preProcessamento) {
-            cout << "inchar r0" << endl; 
+            cout << "load r0, " << stack+2 << endl;
+            cout << "load r1, " << stack+1 << endl;
+            cout << "in r0, r1" << endl; 
             cout << "store " << stack << ", r0" << endl;
             stack--;
         }
     }
-
-opt_args:
-    |   VIRGULA assignment_expression {
-        msg_sintatico("opt_args VIRGULA primary_expression");
-        if(correcao_printf_string > 0) {
-            printf_args.push_back(correcao_printf_string);
-            correcao_printf_string = 0;
-        }
-        else
-            printf_args.push_back(stack+1);
-    }
-    |   opt_args VIRGULA assignment_expression {
-        msg_sintatico("opt_args opt_args VIRGULA primary_expression");
-        if(correcao_printf_string > 0) {
-            printf_args.push_back(correcao_printf_string);
-            correcao_printf_string = 0;
-        }
-        else
-            printf_args.push_back(stack+1);
-    }
     ;
 
-printf:
-        PRINTF {
-        msg_sintatico("printf printf");
+out_statement:
+        OUT ABRE_PARENTESES assignment_expression VIRGULA assignment_expression FECHA_PARENTESES { 
+        msg_sintatico("breakp in abre_parenteses primary_expression virgula primary_expression fecha_parenteses");
         if(!preProcessamento) {
-            begin_printf = 1;
-            //if(!printf_args.empty())
-                printf_args.clear();
-        }
-    }
-    ;
-
-printf_statement:
-        printf ABRE_PARENTESES assignment_expression VIRGULA assignment_expression VIRGULA STRING_LITERAL opt_args FECHA_PARENTESES PONTO_VIRGULA {
-        msg_sintatico("breakp printf abre_parenteses primary_expression virgula primary_expression virgula string_literal opt_args fecha_parenteses");
-        if(!preProcessamento) {
-
-            string aux = *$7;
-            msg_instrucao("; printf(" + aux + ");");
-
-            int comeco_da_string = stack;
-            int numero_de_argumentos = 0;
-            int numero_de_parametros = printf_args.size() - 2;
-
-            //for(int i = 0; i < printf_args.size(); i++)
-            //    cerr << printf_args[i] << endl;
-
-            int j = 0;
-            for(int i = 0; i < aux.length(); i++) {
-
-                if(aux[i] == '%') {
-
-                    switch(aux[i+1]) {
-
-                        case 's':
-                            numero_de_argumentos++;
-                            if(numero_de_argumentos > numero_de_parametros)
-                                errorMsg("printf faltando argumentos");
-                            cout << "loadn r0, #'%'" << endl;
-                            cout << "store " << stack << ", r0" << endl;
-                            cout << "loadn r0, #'s'" << endl;
-                            cout << "store " << stack-1 << ", r0" << endl;
-
-                            cout << ";comeco da string: " << comeco_da_string << endl;
-                            cout << ";printf_args.size(): " << printf_args.size() << endl;
-                            for(int w =0 ; w < printf_args.size(); w++)
-                                cout << "; " << printf_args[w] << endl;
-                            cout << ";j: " << j << endl;
-
-                            cout << "loadn r0, #" << printf_args[j] << endl;
-                            //cout << "loadn r0, #" << comeco_da_string + printf_args.size() -j << endl;
-                            cout << "store " << stack-2 << ", r0" << endl;
-                            stack = stack - 3;
-                            i++;
-                            j++;
-                            continue;
-
-                        case 'd':
-                            numero_de_argumentos++;
-                            if(numero_de_argumentos > numero_de_parametros)
-                                errorMsg("printf faltando argumentos");
-                            cout << "loadn r0, #'%'" << endl;
-                            cout << "store " << stack << ", r0" << endl;
-                            cout << "loadn r0, #'d'" << endl;
-                            cout << "store " << stack-1 << ", r0" << endl;
-
-                            cout << ";comeco da string: " << comeco_da_string << endl;
-                            cout << ";printf_args.size(): " << printf_args.size() << endl;
-                            for(int w =0 ; w < printf_args.size(); w++)
-                                cout << "; " << printf_args[w] << endl;
-                            cout << ";j: " << j << endl;
-
-                            cout << "loadn r0, #" << printf_args[j] << endl;
-                            //cout << "loadn r0, #" << comeco_da_string + printf_args.size() -j << endl;
-                            cout << "store " << stack-2 << ", r0" << endl;
-                            stack = stack - 3;
-                            i++;
-                            j++;
-                            continue;
-
-                        case 'c':
-                            numero_de_argumentos++;
-                            if(numero_de_argumentos > numero_de_parametros)
-                                errorMsg("printf faltando argumentos");
-                            cout << "loadn r0, #'%'" << endl;
-                            cout << "store " << stack << ", r0" << endl;
-                            cout << "loadn r0, #'c'" << endl;
-                            cout << "store " << stack-1 << ", r0" << endl;
-
-                            cout << "loadn r0, #" << printf_args[j] << endl;
-                            //cout << "loadn r0, #" << comeco_da_string + printf_args.size() -j << endl;
-                            cout << "store " << stack-2 << ", r0" << endl;
-                            stack = stack - 3;
-                            i++;
-                            j++;
-                            continue;
-
-                        case 'S':
-                            numero_de_argumentos++;
-                            if(numero_de_argumentos > numero_de_parametros)
-                                errorMsg("printf faltando argumentos");
-                            cout << "loadn r0, #'%'" << endl;
-                            cout << "store " << stack << ", r0" << endl;
-                            cout << "loadn r0, #'S'" << endl;
-                            cout << "store " << stack-1 << ", r0" << endl;
-
-                            cout << ";comeco da string: " << comeco_da_string << endl;
-                            cout << ";printf_args.size(): " << printf_args.size() << endl;
-                            for(int w =0 ; w < printf_args.size(); w++)
-                                cout << "; " << printf_args[w] << endl;
-                            cout << ";j: " << j << endl;
-
-                            cout << "loadn r0, #" << printf_args[j] << endl;
-                            //cout << "loadn r0, #" << comeco_da_string + printf_args.size() -j << endl;
-                            cout << "store " << stack-2 << ", r0" << endl;
-                            stack = stack - 3;
-                            i++;
-                            j++;
-                            continue;
-
-                        default:
-                            break;
-                    }
-                }
-                cout<< "loadn r0, #'" << aux[i] << "'" << endl
-                    << "store " << stack << ", r0" << endl;
-                stack--;
-            }
-            
-            cout<< "loadn r0, #0" << endl
-                << "store " << stack << ", r0" << endl;
-            stack--;
-
-            // Tela: 30x40
-//            cout<< "load r0, " << comeco_da_string + 2 + printf_args.size() << endl
-//                << "load r1, " << comeco_da_string + 1 + printf_args.size() << endl
-
-            if(printf_args.size() > 0)
-            cout<< "load r0, " << 2 + printf_args[0] << endl
-                << "load r1, " << 1 + printf_args[0] << endl;
-            else
-            cout<< "load r0, " << 2 + comeco_da_string << endl
-                << "load r1, " << 1 + comeco_da_string << endl;
-        
-            cout<< "loadn r2, #40" << endl
-                << "mul r0, r0, r2" << endl // para achar a posicao na tela
-                << "add r0, r0, r1" << endl
-                << "loadn r2, #" << comeco_da_string << endl
-                << "call __printf__" << endl;
-
-            begin_printf = 0;
-            //if(!printf_args.empty())
-                printf_args.clear();
+            cout << "load r0, " << stack+2 << endl;
+            cout << "load r1, " << stack+1 << endl;
+            cout << "out r0, r1" << endl; 
         }
     }
     ;
@@ -2254,121 +2084,7 @@ int main(int argc, char *argv[]) {
     // r5 
     // r6 \0
     // r7 
-    cout<< "__printf__:" << endl
-        << "loadn r6, #0" << endl  
-
-        << "__printf_loop__:" << endl
-        << "loadn r4, #'%'" << endl
-        << "loadi r1, r2" << endl
-        << "cmp r1, r4" << endl
-        << "jeq __side_printf__" << endl
-        << "cmp r1, r6" << endl
-        << "jeq __printf_fim__" << endl
-        << "outchar r1, r0" << endl
-        << "inc r0" << endl
-        << "dec r2" << endl
-        << "jmp __printf_loop__" << endl
-        << "__printf_fim__:" << endl
-        << "rts" << endl
-
-        << "__side_printf__:" << endl
-        << "dec r2" << endl
-        << "loadi r5, r2" << endl
-
-        << "loadn r4, #'d'" << endl
-        << "cmp r5, r4" << endl
-        << "jeq __printf_d__" << endl
-
-        << "loadn r4, #'s'" << endl
-        << "cmp r5, r4" << endl
-        << "jeq __printf_s__" << endl
-
-        << "loadn r4, #'S'" << endl
-        << "cmp r5, r4" << endl
-        << "jeq __printf_S__" << endl
-
-        << "loadn r4, #'c'" << endl
-        << "cmp r5, r4" << endl
-        << "jeq __printf_c__" << endl
-
-        // nao e' nenhum deles entao imprime
-        << "outchar r1, r0" << endl
-        << "inc r0" << endl     
-        << "outchar r5, r0" << endl
-        << "inc r0" << endl     
-        << "jmp __printf_loop__" << endl;
-
-    cout<< "__printf_d__:" << endl
-        << "push r1" << endl
-        << "loadn r1, #0" << endl
-
-        << "dec r2" << endl
-        << "loadi r5, r2" << endl
-        << "loadi r5, r5" << endl
-        << "dec r2" << endl
-        << "loadn r7, #10" << endl
-
-        << "__printf_d_loop__:" << endl
-        << "div r4, r5, r7" << endl
-        << "mul r3, r4, r7" << endl
-        << "sub r3, r5, r3" << endl
-        << "push r3" << endl
-        << "inc r1" << endl
-        << "cmp r4, r6" << endl
-        << "jeq __printf_d_imprime__" << endl
-        << "mov r5, r4" << endl
-        << "jmp __printf_d_loop__" << endl
-
-        << "__printf_d_imprime__:" << endl
-        << "loadn r7, #'0'" << endl
-        << "pop r4" << endl
-        << "add r4, r4, r7" << endl
-        << "outchar r4, r0" << endl
-        << "inc r0" << endl
-        << "dec r1" << endl
-        << "cmp r1, r6" << endl
-        << "jne __printf_d_imprime__" << endl
-
-        << "pop r1" << endl
-        << "jmp __printf_loop__" << endl;
-
-    cout<< "__printf_s__:" << endl
-        //<< "breakp"<< endl
-        << "dec r2" << endl
-        << "loadi r4, r2" << endl
-        << "loadi r4, r4" << endl
-        << "dec r2" << endl
-        << "__side_printf_volta__:" << endl
-        << "loadi r5, r4" << endl
-        << "cmp r5, r6" << endl // cmp \0
-        << "jeq __printf_loop__" << endl
-        << "outchar r5, r0" << endl
-        << "dec r4" << endl
-        << "inc r0" << endl
-        << "jmp __side_printf_volta__" << endl;
-
-    cout<< "__printf_S__:" << endl
-        << "dec r2" << endl
-        << "loadi r4, r2" << endl
-        << "dec r2" << endl
-        << "__side_printf2_volta__:" << endl
-        << "loadi r5, r4" << endl
-        << "cmp r5, r6" << endl // cmp \0
-        << "jeq __printf_loop__" << endl
-        << "outchar r5, r0" << endl
-        << "dec r4" << endl
-        << "inc r0" << endl
-        << "jmp __side_printf2_volta__" << endl;
-
-    cout<< "__printf_c__:" << endl
-        << "dec r2" << endl
-        << "loadi r5, r2" << endl
-        << "loadi r5, r5" << endl
-        << "outchar r5, r0" << endl
-        << "dec r2" << endl
-        << "inc r0" << endl
-        << "jmp __printf_loop__" << endl;
-
+    
     // operadores logicos
     cout<< "__and_routine__:" << endl
         << "and r0, r1, r0" << endl
