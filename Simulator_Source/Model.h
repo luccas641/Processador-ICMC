@@ -2,8 +2,11 @@
 #define MODEL_H
 
 #include "Mneumonicos.h"
-#include "ModelInterface.h"
+#include "Instrucoes.h"
+#include "Registradores.h"
+#include "ControllerInterface.h"
 #include "pit.h"
+#include "Video.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,10 +18,9 @@
 
 using namespace std;
 
-class Model : public ModelInterface
+class Model
 {	private:
 		// ------ MVC ---------
-		Video *Vid;
 		Instrucoes *Ins;
 		Registradores *Reg;
 		ControllerInterface *controller;
@@ -35,14 +37,6 @@ class Model : public ModelInterface
 
 		// ---- Nome dos arquivos ------
 		char cpuram[64];
-		char charmap[64];
-
-		// -- buffer dos caracteres do charmap --
-		short int **chars;
-
-		// -- propriedades do charmap ----
-		int charmapwidth;
-		int charmapdepth;
 
 		// -- Processamento ---
 		pthread_t out;
@@ -53,16 +47,15 @@ class Model : public ModelInterface
 		int varDelay;
 		bool automatico;
 
-		// -- Video ---
-		pixblock *block;
-
 		// -- Timer --
 		PIT *t;
 		int flagIRQ;
 
+		// -- Video --
 
 	public:
-		Model(char *cpuram, char *charmap);
+		Video Vid;
+		Model(char *cpuram);
 		~Model();
 
 		void setController(ControllerInterface *controller);
@@ -127,15 +120,6 @@ class Model : public ModelInterface
 
 		int pega_pedaco(int ir, int a, int b);
 
-
-		// ------ Video -------------------
-		void registraVideo(Video *v);
-
-		void removeVideo();
-
-		short int** getChars();
-
-		pixblock* getPixblock();
 
 		void resetVideo();
 

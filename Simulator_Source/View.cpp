@@ -10,28 +10,15 @@ int line2_instruction[TAM] = { STORE, LOAD, LOADIMED, JMP, CALL };
 
 using namespace std;
 
-View::View(ModelInterface *model, ControllerInterface *controller)
+View::View(Model *model, ControllerInterface *controller)
 {	this->model = model;
 	View::controller = controller;
 
 	// adiciona o view como observador 
 	model->registraRegistrador(this);
 	model->registraInstrucoes(this);
-	model->registraVideo(this);
-
-	// recupera o nome do charmap e do cpuram
-	charmap = model->getCharmap();
+	
 	cpuram = model->getCpuram();
-
-	// recupera o charmapwidth e charmapdepth
-	charmapdepth = model->getCharmapdepth();
-	charmapwidth = model->getCharmapwidth();
-
-	// recupera o desenhos binario dos caracteres
-	chars = model->getChars();
-
-	// recupera a saida de video
-	block = model->getPixblock();
 
 	// cria a GUI
 	criaJanela("Simulador");
@@ -135,47 +122,33 @@ void View::updateRegistradores()
 void View::updateVideo(int pos)
 {	//gtk_widget_queue_draw(outputarea);
 	gtk_widget_queue_draw_area(outputarea, 16*(pos%40), 16*(pos/40), 16, 16);
-//	vi->_draw_pixmap(cr, vi->block[i].sym, 16*(i%40), 16*(i/40), 2, RED);//vi->block[i].color);
 }
 
-void View::_draw_pixmap(cairo_t *cr, int offset, int x, int y, int size, int color)
-{	if(offset+8 > charmapdepth)
-	{	g_print("Erro: offset+i < charmapdepth: %d\n", offset);
-		return;
-	}
-
+void View::_setColor(cairo_t *cr, int color, int palette){
 	double R = 0.0, G = 0.0, B = 0.0;
+	auto p = model->Vid.getPalette();
+	auto c = p[palette << 2 | color];
+	B = c.blue/32;
+	G = c.green/32;
+	R = c.red/32; 
+	cairo_set_source_rgb(cr, R, G, B);
+}
 
-	switch(color)
-	{ case BROWN: 	R = 0.647058824; G = 0.164705882; B = 0.164705882; break;
-		case GREEN: 	R = 0.000000000; G = 1.000000000; B = 0.000000000; break;
-		case OLIVE: 	R = 0.419607843; G = 0.556862745; B = 0.137254902; break;
-		case NAVY: 		R = 0.137254902; G = 0.137254902; B = 0.556862745; break;
-		case PURPLE: 	R = 0.529411765; G = 0.121568627; B = 0.470588235; break;
-		case TEAL: 		R = 0.000000000; G = 0.501960784; B = 0.501960784; break;
-		case SILVER: 	R = 0.901960784; G = 0.909803922; B = 0.980392157; break;
-		case GRAY: 		R = 0.745098039; G = 0.745098039; B = 0.745098039; break;
-		case RED: 		R = 1.000000000; G = 0.000000000; B = 0.000000000; break;
-		case LIME: 		R = 0.196078431; G = 0.803921569; B = 0.196078431; break;
-		case YELLOW: 	R = 1.000000000; G = 1.000000000; B = 0.000000000; break;
-		case BLUE: 		R = 0.000000000; G = 0.000000000; B = 1.000000000; break;
-		case FUCHSIA: R = 1.000000000; G = 0.109803922; B = 0.682352941; break;
-		case AQUA: 		R = 0.478431373; G = 0.858823529; B = 0.576470588; break;
-		case WHITE: 	R = 1.000000000; G = 1.000000000; B = 1.000000000; break;
-		case BLACK:	 	R = 0.000000000; G = 0.000000000; B = 0.000000000; break;
-		default:			R = 1.000000000; G = 1.000000000; B = 1.000000000; break;
-  }
-
+void View::_draw_pixmap(cairo_t *cr, int sprite, int palette, int x, int y)
+{	
 	int i, j;
+	auto sprites = model->Vid.getSprites();
 
-  for(i=8; i--; )
-  {	for(j=8; j--; )
-		{ if(chars[i+offset][j])
-      { cairo_set_source_rgb(cr, R, G, B);
-				cairo_rectangle(cr, (size*j)+x, (size*i)+y, size, size);
-	      cairo_fill(cr);
+  	for(i=0; i<8; i++){
+  		for(j=0; j<8; j++){
+  			int cor = sprites[sprite/8].p[i][j]*2 + sprites[sprite/8].p[i][j+8];
+			if(cor){   
+				_setColor(cr, cor, palette);
+		  		cairo_rectangle(cr, (2*j)+x, (2*i)+y, 2, 2);
+	      		cairo_fill(cr);
 			}
-    }
+    	}
+    	printf("\n");
 	}
 }
 
@@ -526,9 +499,7 @@ void View::criarLabelsInferior(GtkWidget *vbox)
 { GtkWidget *fixed = gtk_fixed_new();
 
 	labelCPURAM 	= gtk_label_new (cpuram);
-	labelCharmap 	= gtk_label_new (charmap);
 	gtk_fixed_put(GTK_FIXED (fixed), labelCPURAM, 40, 0);		// 40
-	gtk_fixed_put(GTK_FIXED (fixed), labelCharmap, 40, 20); // 250
 
 	labelP 		= gtk_label_new("Pressione Home para modo Automático");
 	labelEnd 	= gtk_label_new("Pressione End para passo a passo");
@@ -648,13 +619,21 @@ gboolean View::ViewerExpose(GtkWidget *widget, GdkEventExpose *event, gpointer d
 
 	cairo_t *cr = gdk_cairo_create(vi->outputarea->window);
 
-  cairo_set_source_rgb(cr, 0, 0, 0);
-  cairo_paint(cr);
+  	cairo_set_source_rgb(cr, 0, 0, 0);
+  	cairo_paint(cr);
 
-//*
-  for(int i=1200; i--; )
-	{	if(vi->block[i].sym != 32)
-			vi->_draw_pixmap(cr, vi->block[i].sym, 16*(i%40), 16*(i/40), 2, vi->block[i].color);
+  	auto bg = vi->model->Vid.getBG();
+
+  	for(int i=1200; i--; )
+	{
+		vi->_draw_pixmap(cr, bg[i].c, bg[i].p, 16*(i%40), 16*(i/40));
+	}
+
+	auto oam = vi->model->Vid.getOAM();
+
+	for(int i=128; i--; )
+	{	
+		vi->_draw_pixmap(cr, oam[i].c, oam[i].p, 16*(i%40), 16*(i/40));
 	}
 //*/
   cairo_destroy(cr);

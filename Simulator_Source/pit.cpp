@@ -63,7 +63,6 @@ void PIT::setD2(unsigned short d){
 void PIT::setC(unsigned short con){
 	this->con = con;
 	int rc;
-	printf("setc");
 	if(con & 1 && !threads[0]){
 		rc = pthread_create(&threads[0], NULL,
 		                  incC0, (void*)this);

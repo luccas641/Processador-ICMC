@@ -5,7 +5,7 @@
 
 using namespace std;
 
-Controller::Controller(ModelInterface *model)
+Controller::Controller(Model *model)
 {	this->model = model;
 	this->model->setController(this);
 
@@ -20,7 +20,7 @@ Controller::Controller(ModelInterface *model)
 Controller::~Controller()
 {	delete view; }
 
-void Controller::reset()
+void Controller::reset() 	
 {	model->reset();
 	if(resetVideo)
 	{	model->resetVideo();

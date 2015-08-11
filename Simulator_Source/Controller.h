@@ -2,20 +2,20 @@
 #define CONTROLLER_H
 
 #include "View.h"
-#include "ModelInterface.h"
 #include "ControllerInterface.h"
+#include "Model.h"
 
 class Controller : public ControllerInterface
 {	private:
 		View *view;
-		ModelInterface *model;
+		Model *model;
 		bool hex;
 		bool automatico;
 		bool resetVideo;
 
 		int key;
 	public:
-		Controller(ModelInterface *model);
+		Controller(Model *model);
 
 		~Controller();
 

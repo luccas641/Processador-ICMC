@@ -10,8 +10,7 @@ void* processaAutomatico(void *data)
 	int contador = 0;
 
 	while( model->getProcessamento() ) // automatico
-	{	
-		gdk_threads_enter();
+	{	gdk_threads_enter();
 		model->processador();
 		gdk_threads_leave();
 
@@ -26,7 +25,6 @@ void* processaAutomatico(void *data)
 	gdk_threads_enter();
 	model->updateAll();
 	gdk_threads_leave();
-
 
 	return NULL;
 }
@@ -44,7 +42,7 @@ void Model::updateAll()
 
 
 // -- Construtor e destrutor ---
-Model::Model(char *cpuram, char *charmap)
+Model::Model(char *cpuram)
 {	FILE *pf;
 	if( (pf = fopen(cpuram, "r")) == NULL)
 	{	printf("Erro ao tentar abrir: %s\n", cpuram);
@@ -61,29 +59,19 @@ Model::Model(char *cpuram, char *charmap)
 	fclose(pf);
 
 	GravaArquivo(cpuram);
-	load_charmap(charmap);
 
 	sprintf(this->cpuram, "CPURAM: %s", cpuram);
-	sprintf(this->charmap, "Charmap: %s", charmap);
 	
 	varDelay = MEDIA;
 	automatico = false;
 
-	block = (pixblock*) malloc( sizeof(pixblock) * 1200 );
 	resetVideo();
-
-	t = new PIT(controller);
-	flagIRQ = 0;
 }
 
-Model::~Model()
-{	free(block); }
 
 
 void Model::setController(ControllerInterface *controller)
-{	this->controller = controller; 
-	t->c = controller;
-}
+{	this->controller = controller; }
 
 void Model::reset()
 {	pc = 0;
@@ -197,7 +185,7 @@ bool Model::getC0(int N)
 void Model::setC0(int N, bool valor)
 {	if(valor >= 0)
 		c0[N] = valor;
-	//Reg->updateC0();
+	Reg->updateC0();
 }
 
 // -------- IRQ -----------
@@ -207,7 +195,7 @@ bool Model::getIRQ(int N)
 void Model::setIRQ(int N, bool valor)
 {	if(valor >= 0)
 		IRQ[N] = valor;
-	flagIRQ = 1;
+	Reg->updateIRQ();
 }
 
 
@@ -226,24 +214,11 @@ bool Model::getProcessamento()
 
 void Model::processa()
 { if(automatico)
-	{	//pthread_join(out, NULL);
-		//pthread_create(&out, NULL, processaAutomatico, this); // cria uma thread para o Processamento
-
+	{	
 		GError *error = NULL;
 
-		/* mexi ontem para ver se a velocidade aumentava
-		int i;
-		for(i=20; i--; )
-		{
-			if(!g_thread_create(processaAutomatico, this, TRUE, &error))
-			{	g_printerr ("Failed to create YES thread: %s\n", error->message);
-				return;
-			}
-		}
-		//*/
-
 //*
-		if(!g_thread_create(processaAutomatico, this, TRUE, &error))
+		if(!g_thread_new("proc", processaAutomatico, this))
 		{	g_printerr ("Failed to create YES thread: %s\n", error->message);
 			return;
 		}
@@ -258,29 +233,13 @@ void Model::processa()
 
 
 // Funcao que separa somente o pedaco de interesse do IR;
-__inline int Model::pega_pedaco(int ir, int a, int b)
+ int Model::pega_pedaco(int ir, int a, int b)
 { return (int)((ir & (int)  ( (int)((1 << (a+1)) - 1) )  ) >> b); }
 
 
-// ------ Video -------------------
-void Model::registraVideo(Video *v)
-{	Vid = v;	}
-
-void Model::removeVideo()
-{ Vid = NULL;	}
-
-short int** Model::getChars()
-{	return chars; }
-
-pixblock* Model::getPixblock()
-{	return block; }
-
 void Model::resetVideo()
 {	
-	for(int i=1200; i--; )
-	{	block[i].color = BLACK;
-		block[i].sym = 0;
-	}
+	Vid.reset();
 }
 
 
@@ -346,101 +305,23 @@ void Model::GravaArquivo(char *nome)
 	fclose(stream);  // Nunca esqueca um arquivo aberto!!
 }
 
-void Model::load_charmap(char* filename)
-{ if(filename == NULL)
-		return;
+const char *byte_to_binary(int x)
+{
+    static char b[9];
+    b[0] = '\0';
 
-	FILE *ipf = fopen(filename, "r");
+    int z;
+    for (z = 128; z > 0; z >>= 1)
+    {
+        strcat(b, ((x & z) == z) ? "1" : "0");
+    }
 
-	if(ipf == NULL)
-	{ printf("Error: CHARMAP.MIF not found.\n");
-		return;
-	}
-
-	unsigned int i, j, widthcount, depthcount, bytecount, bytemaxcount;
-
-	// ----- percorre ate o primeiro "=" e salva o valor de width -------
-	while(fgetc(ipf) != '=') ;
-	fscanf(ipf, "%d", &widthcount);
-	// --------------------- -- -----------------------------------------
-
-	// ------ percorre ate o proximo "=" e salva o valor de depth --------
-	while(fgetc(ipf) != '=') ;
-	fscanf(ipf, "%d", &depthcount);
-	// ------------------- --- --------------------------------------------
-
-	charmapdepth = depthcount;
-	charmapwidth = widthcount;
-
-	// -------- alocacao da matriz de caracteres ---------------------------
-	chars = (short int **) malloc(depthcount*sizeof(short int *)); // aloca uma coluna da matriz
-
-	for(i=depthcount; i--; )											 		// aloca uma linha p/ cada posicao da coluna
-		chars[i] = (short int *) malloc(widthcount*sizeof(short int));
-	// -------------------- -- ---------------------------------------------
-
-	for(i = 0; i < depthcount; i++)
-	{ while(fgetc(ipf) != '\t'); // pq as linhas sempre comeca com um tab e em seguida o caracter
-
-		// ------- se for o caso de [A..B] -------------------
-		if(fgetc(ipf) == '[') 								// pula o [
-		{ fscanf(ipf, "%d", &bytecount);			// salva A
-
-		  fgetc(ipf);													// pula .
-		  fgetc(ipf);													// pula .
-
-		  fscanf(ipf, "%d", &bytemaxcount);		// salva B
-
-		  bytemaxcount -= bytecount;					// o contador de bits eh a diferenca de A e B
-		}
-		else // ------- senao -------
-		{ fseek(ipf, -1, SEEK_CUR);						// como ja pegou o numero A na comparacao volta uma posicao p/ tras
-		  fscanf(ipf, "%d", &bytecount);			// salva A em bytecount
-		  bytemaxcount = 0;										// reseta bytemaxcount
-		}
-
-		while(fgetc(ipf) != ':');							// vai ate os :
-
-		// ----- pula até os 0s e 1s que formam os caracteres ---------
-		char a;
-		while(1)
-		{ a = fgetc(ipf);
-			if(a == '1' || a == '0')
-			{ fseek(ipf, -1, SEEK_CUR);
-				break;
-			}
-		}
-		// ----------------------------------------------------
-
-		// ------ salva a parte da linha que contem 0s e 1s na matriz -----------
-		for(j=0; j<widthcount; j++)
-			chars[i][j] = fgetc(ipf) - 48;
-		// -------------------------- -- ----------------------------------------
-
-		// ------ preenche as linhas detro do intervao [A..B] iguais a linha A----
-		while(bytemaxcount--)
-		{ i++;
-		  for(j=widthcount; j--; )
-		  	chars[i][j] = chars[i-1][j];
-		}
-		// ----------------------- -- --------------------------------------------
-	}
-	fclose(ipf);
+    return b;
 }
 
 
-// cpuram.mif e charmap.mif
-char* Model::getCharmap()
-{ return charmap; }
-
 char* Model::getCpuram()
 { return cpuram; }
-
-int Model::getCharmapdepth()
-{	return charmapdepth; }
-
-int Model::getCharmapwidth()
-{	return charmapwidth; }
 
 
 // Memoria
@@ -501,12 +382,7 @@ void Model::setDelay(int valor)
 }
 
 void Model::processador()
-{ 
-	if(flagIRQ == 1){
-		Reg->updateIRQ();
-		flagIRQ = 0;
-	}
-	unsigned int la;
+{ unsigned int la;
 	unsigned int i;
 	unsigned int temp;
 	unsigned int opcode;
@@ -545,30 +421,34 @@ void Model::processador()
 		break;
 
     case OUTCHAR:
-			if(reg[ry] >=0 && reg[ry] < 1200) //Video
+			if(reg[ry] == 0) //Video ADDR BG
 			{	
-				letra = reg[rx] & 0x7f;
-
-				if(letra > 0)
-	      			temp = letra;// + 32;
-				else
-					temp = 0;
-
-			    block[reg[ry]].color = pega_pedaco(reg[rx], 11, 8);
-			    block[reg[ry]].sym = temp * 8;
-				Vid->updateVideo(reg[ry]);
+				Vid.setAddrBG(reg[rx]);
+			}else if(reg[ry] == 1) //Video BG
+			{	
+				Vid.setAddrBG(reg[rx]);
+			}else if(reg[ry] == 2) //Video ADDR OAM
+			{	
+				Vid.setAddrOAM(reg[rx]);
+			}else if(reg[ry] == 3) //Video OAM
+			{	
+				Vid.setAddrBG(reg[rx]);
+			}else if(reg[ry] == 4) //Video ADDR SPRITE
+			{	
+				Vid.setAddrSprite(reg[rx]);
+			}else if(reg[ry] == 5) //Video SPRITE
+			{	
+				Vid.setAddrBG(reg[rx]);
+			}else if(reg[ry] == 6) //Video ADDR PALETTE
+			{	
+				Vid.setAddrPalette(reg[rx]);
+			}else if(reg[ry] == 7) //Video PALETTE
+			{	
+				Vid.setAddrBG(reg[rx]);
 			}else if(reg[ry] >= 0x901 && reg[ry] <= 0x902){ //com1
 
 			}else if(reg[ry] >= 0x990 && reg[ry] <= 0x994){//PIT
-				if(reg[ry] == 0x990){
-					t->setD0(reg[rx]);
-				}else if(reg[ry] == 0x991){
-					t->setD1(reg[rx]);					
-				}else if(reg[ry] == 0x992){
-					t->setD2(reg[rx]);					
-				}else if(reg[ry] == 0x993){
-					t->setC(reg[rx]);		
-				}
+
 			}else{
 				cout << "Erro: Voce tentou usar uma porta nao implementada"<< endl;
 			}
@@ -748,8 +628,7 @@ void Model::processador()
       case RTS:
       	sp++;
         pc = mem[sp];
-        if(!c0[1])
-       		pc++;
+        pc++;
         c0[1] = 0;
         break;
 
@@ -876,6 +755,79 @@ void Model::processador()
 				break;
     }
 
+     /* Ciclo de interrupcao */
+  if(IRQ[3] && !c0[1] && c0[0]){
+  	c0[1] = 1;
+    mem[sp] = reg[pc];
+    sp--;
+
+    /* Executa interrupcao */
+	  if(IRQ[0]){
+	  		pc = mem[0x3f00];
+	  		IRQ[0] = 0;
+	  }
+	  else if(IRQ[1]){
+	  		pc = mem[0x3f01];
+	  		IRQ[1] = 0;
+	  }
+	  else if(IRQ[2]){
+	  		pc = mem[0x3f02];
+	  		IRQ[2] = 0;
+	  }
+	  else if(IRQ[3]){
+	  		pc = mem[0x3f03];
+	  		IRQ[3] = 0;
+	  }
+	  else if(IRQ[4]){
+	  		pc = mem[0x3f04];
+	  		IRQ[4] = 0;
+	  }
+	  else if(IRQ[5]){
+	  		pc = mem[0x3f05];
+	  		IRQ[5] = 0;
+	  }
+	  else if(IRQ[6]){
+	  		pc = mem[0x3f06];
+	  		IRQ[6] = 0;
+	  }
+	  else if(IRQ[7]){
+	  		pc = mem[0x3f07];
+	  		IRQ[7] = 0;
+	  }
+	  else if(IRQ[8]){
+	  		pc = mem[0x3f08];
+	  		IRQ[8] = 0;
+	  }
+	  else if(IRQ[9]){
+	  		pc = mem[0x3f09];
+	  		IRQ[9] = 0;
+	  }
+	  else if(IRQ[10]){
+	  		pc = mem[0x3f0a];
+	  		IRQ[10] = 0;
+	  }
+	  else if(IRQ[11]){
+	  		pc = mem[0x3f0b];
+	  		IRQ[11] = 0;
+	  }
+	  else if(IRQ[12]){
+	  		pc = mem[0x3f0c];
+	  		IRQ[12] = 0;
+	  }
+	  else if(IRQ[13]){
+	  		pc = mem[0x3f0d];
+	  		IRQ[13] = 0;
+	  }
+	  else if(IRQ[14]){
+	  		pc = mem[0x3f0e];
+	  		IRQ[14] = 0;
+	  }
+	  else if(IRQ[15]){
+	  		pc = mem[0x3f0f];
+	  		IRQ[15] = 0;
+	  }
+  }
+
 	auxpc = pc;
 
 	int ir2;
@@ -957,87 +909,5 @@ void Model::processador()
 
 		default: break;
   }
-
-      if(opcode != RTS){
-	    bool irq = false;
-	    /* Ciclo de interrupcao */
-	    for(i=0;i<16;i++ ){
-	    	if(IRQ[i]){
-	    		irq = true;
-	    		break;
-	    	}
-	    }
-	  if(irq && !c0[1] && c0[0]){
-	  	c0[1] = 1;
-	    mem[sp] = pc2;
-	    sp--;
-
-	    /* Executa interrupcao */
-		  if(IRQ[0]){
-		  		pc = mem[0x3f00];
-		  		IRQ[0] = 0;
-		  }
-		  else if(IRQ[1]){
-		  		pc = mem[0x3f01];
-		  		IRQ[1] = 0;
-		  }
-		  else if(IRQ[2]){
-		  		pc = mem[0x3f02];
-		  		IRQ[2] = 0;
-		  }
-		  else if(IRQ[3]){
-		  		pc = mem[0x3f03];
-		  		IRQ[3] = 0;
-		  }
-		  else if(IRQ[4]){
-		  		pc = mem[0x3f04];
-		  		IRQ[4] = 0;
-		  }
-		  else if(IRQ[5]){
-		  		pc = mem[0x3f05];
-		  		IRQ[5] = 0;
-		  }
-		  else if(IRQ[6]){
-		  		pc = mem[0x3f06];
-		  		IRQ[6] = 0;
-		  }
-		  else if(IRQ[7]){
-		  		pc = mem[0x3f07];
-		  		IRQ[7] = 0;
-		  }
-		  else if(IRQ[8]){
-		  		pc = mem[0x3f08];
-		  		IRQ[8] = 0;
-		  }
-		  else if(IRQ[9]){
-		  		pc = mem[0x3f09];
-		  		IRQ[9] = 0;
-		  }
-		  else if(IRQ[10]){
-		  		pc = mem[0x3f0a];
-		  		IRQ[10] = 0;
-		  }
-		  else if(IRQ[11]){
-		  		pc = mem[0x3f0b];
-		  		IRQ[11] = 0;
-		  }
-		  else if(IRQ[12]){
-		  		pc = mem[0x3f0c];
-		  		IRQ[12] = 0;
-		  }
-		  else if(IRQ[13]){
-		  		pc = mem[0x3f0d];
-		  		IRQ[13] = 0;
-		  }
-		  else if(IRQ[14]){
-		  		pc = mem[0x3f0e];
-		  		IRQ[14] = 0;
-		  }
-		  else if(IRQ[15]){
-		  		pc = mem[0x3f0f];
-		  		IRQ[15] = 0;
-		  }
-	  }
-	}
 }
 

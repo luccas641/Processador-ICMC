@@ -4,19 +4,20 @@
 #include "Video.h"
 #include "Instrucoes.h"
 #include "Registradores.h"
+#include "Model.h"
 
 #include <gtk/gtk.h>
 #include <string.h>
 
-#include "ModelInterface.h"
+#include "Model.h"
 #include "ControllerInterface.h"
 
 #include "Mneumonicos.h"
 
-class View : public Instrucoes, public Registradores, public Video
+class View : public Instrucoes, public Registradores
 {	private:
 		// -------- MVC --------
-		ModelInterface *model;
+		Model *model;
 		static ControllerInterface *controller;
 
 		// ---- registradores -------
@@ -53,12 +54,6 @@ class View : public Instrucoes, public Registradores, public Video
 		// ----- Instrucoes ---------
 		GtkTextBuffer *buffer;
 
-		// ------- Video --------
-
-		short int **chars;	// ainda nao eh usado
-		int charmapdepth;
-		int charmapwidth;
-
 		// -- charmap e cpuram ---
 		char *charmap;
 		char *cpuram;
@@ -67,9 +62,8 @@ class View : public Instrucoes, public Registradores, public Video
 
 	public:
 		GtkWidget *outputarea;
-		pixblock *block;
 
-		View(ModelInterface *model, ControllerInterface *controller);
+		View(Model *model, ControllerInterface *controller);
 
 		~View();
 
@@ -94,7 +88,9 @@ class View : public Instrucoes, public Registradores, public Video
 		// -------- Video --------
 		void updateVideo(int pos);
 
-		void _draw_pixmap(cairo_t *cr, int offset, int x, int y, int size, int color);
+		void _setColor(cairo_t *cr, int, int);
+
+		void _draw_pixmap(cairo_t *cr, int sprite, int palette, int x, int y);
 
 		static gboolean ViewerExpose(GtkWidget *widget, GdkEventExpose *event, gpointer data);
 
