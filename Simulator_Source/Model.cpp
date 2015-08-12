@@ -64,6 +64,7 @@ Model::Model(char *cpuram)
 	
 	varDelay = MEDIA;
 	automatico = false;
+	count = 0;
 
 	resetVideo();
 }
@@ -236,7 +237,6 @@ void Model::processa()
  int Model::pega_pedaco(int ir, int a, int b)
 { return (int)((ir & (int)  ( (int)((1 << (a+1)) - 1) )  ) >> b); }
 
-
 void Model::resetVideo()
 {	
 	Vid.reset();
@@ -382,12 +382,20 @@ void Model::setDelay(int valor)
 }
 
 void Model::processador()
-{ unsigned int la;
+{ 
+	unsigned int la;
 	unsigned int i;
 	unsigned int temp;
 	unsigned int opcode;
 
 	unsigned int letra;
+
+	// -- Video --
+	if(count == 49999){
+		controller->updateVideo();
+		count = 0;
+	}
+	count ++;
 
   // ----- Ciclo de Busca: --------
 	ir = mem[pc];
@@ -403,7 +411,7 @@ void Model::processador()
   rx = pega_pedaco(ir,9,7);
   ry = pega_pedaco(ir,6,4);
   rz = pega_pedaco(ir,3,1);
-	// ------------- -- --------------
+	// ------------- -- --------------*
 
   // Case das instrucoes
   opcode = pega_pedaco(ir,15,10);
@@ -423,28 +431,34 @@ void Model::processador()
     case OUTCHAR:
 			if(reg[ry] == 0) //Video ADDR BG
 			{	
+				cout << "Endereco BG" << endl;
 				Vid.setAddrBG(reg[rx]);
 			}else if(reg[ry] == 1) //Video BG
 			{	
-				Vid.setAddrBG(reg[rx]);
+				cout << "BG" << endl;
+				Vid.addBG(reg[rx]);
 			}else if(reg[ry] == 2) //Video ADDR OAM
 			{	
 				Vid.setAddrOAM(reg[rx]);
-			}else if(reg[ry] == 3) //Video OAM
+			}else if(reg[ry] == 3) //Vdeo OAM
 			{	
-				Vid.setAddrBG(reg[rx]);
+				Vid.addObject(reg[rx]);
 			}else if(reg[ry] == 4) //Video ADDR SPRITE
 			{	
+				cout << "Endereco Sprite" << endl;
 				Vid.setAddrSprite(reg[rx]);
 			}else if(reg[ry] == 5) //Video SPRITE
 			{	
-				Vid.setAddrBG(reg[rx]);
+				cout << " Sprite" << endl;
+				Vid.addSprite(reg[rx]);
 			}else if(reg[ry] == 6) //Video ADDR PALETTE
 			{	
+				cout << "Endereco Palette" << endl;
 				Vid.setAddrPalette(reg[rx]);
 			}else if(reg[ry] == 7) //Video PALETTE
 			{	
-				Vid.setAddrBG(reg[rx]);
+				cout << " Palette" << endl;
+				Vid.addPalette(reg[rx]);
 			}else if(reg[ry] >= 0x901 && reg[ry] <= 0x902){ //com1
 
 			}else if(reg[ry] >= 0x990 && reg[ry] <= 0x994){//PIT
@@ -901,10 +915,12 @@ void Model::processador()
 
 		case BREAKP:
 			controller->notifyProcessamento();
+			controller->updateVideo();
 			break;
 
 		case HALT:
 			controller->notifyProcessamento();
+			controller->updateVideo();
 			break;
 
 		default: break;

@@ -39,6 +39,7 @@ class Controller : public ControllerInterface
 
 		void switchExecucao();
 
+		void updateVideo();
 
 		// ---- comandos de get --------
 		bool getHex();

@@ -24,7 +24,7 @@ void Controller::reset()
 {	model->reset();
 	if(resetVideo)
 	{	model->resetVideo();
-		for(int i=1200; i--; )
+		for(int i=1024; i--; )
 			view->updateVideo(i);
 	}
 }
@@ -120,6 +120,11 @@ bool Controller::userInput(const char *tecla)
 void Controller::setRegistradorHex(bool valor)
 { hex = valor;
 	model->setRegistrador(NULL); // atualiza os registradores
+}
+
+void Controller::updateVideo(){
+	for(int i=1024; i--; )
+		view->updateVideo(i);
 }
 
 bool Controller::getHex()

@@ -17,6 +17,9 @@ class ControllerInterface
 		virtual int getKey() = 0;
 
 
+		virtual void updateVideo() = 0;
+
+
 		// ---- comandos de set -------
 		virtual void setDelay(int valor) = 0;
 

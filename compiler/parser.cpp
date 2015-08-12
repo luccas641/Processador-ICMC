@@ -4868,12 +4868,12 @@ void expressao_binaria(char op) {
             case '*': cout << "mul r2, r0, r1" << endl; break;
             case '-': cout << "sub r2, r0, r1" << endl; break;
             case '/': cout << "div r2, r0, r1" << endl; break;
-            case '%': cout << "lmod r2, r0, r1" << endl; break;
-            case 'l': cout << "shift left" << endl; break; // shift left
-            case 'r': cout << "shift right" << endl; break; // shift right
-            case '|': cout << "lor r0, r1, r2" << endl; break;
-            case '^': cout << "lxor r0, r1, r2" << endl; break;
-            case '&': cout << "land r0, r1, r2" << endl; break;
+            case '%': cout << "mod r2, r0, r1" << endl; break;
+            case 'l': cout << "shiftl0 r2, r0, r1" << endl; break; // shift left
+            case 'r': cout << "shiftr0 r2, r0, r1" << endl; break; // shift right
+            case '|': cout << "or r2, r0, r1" << endl; break;
+            case '^': cout << "xor r2, r0, r1" << endl; break;
+            case '&': cout << "and r2, r0, r1" << endl; break;
             default: errorMsg("operacao invalida"); break;
         }
         cout << "store " << stack+2 << ", r2" << endl << endl;

@@ -1,33 +1,57 @@
 #include "Video.h"
+#include <iostream>
 
+using namespace std;
 Video::Video()
 {
-	sprites.resize(128);
+	sprites.resize(1024);
 	oam.resize(128);
 	bg.resize(1024);
 	palette.resize(128);
 }
 
-void Video::addSprite(SPRITEe sprite)
+void Video::addSprite(unsigned int data)
 {
-	this->sprites[addrSprite++] = sprite;
+	this->sprites[addrSprite>>3].p[addrSprite & 7] = data;
+	addrSprite = (addrSprite + 1) %1024;
 }
 
-void Video::addObject(OAMe obj)
+void Video::addObject(unsigned int data)
 {
-	this->oam[addrOAM++] = (obj);
+	if((addrOAM & 3) == 0){
+		this->oam[addrOAM>>2].x = data;
+	}else if((addrOAM & 3) == 1){
+		this->oam[addrOAM>>2].y = data;
+	}else if((addrOAM & 3) == 2){
+		this->oam[addrOAM>>2].c = data;
+	}else if((addrOAM & 3) == 3){
+		this->oam[addrOAM>>2].v = data & 1;
+		this->oam[addrOAM>>2].h = (data >> 1) & 1;
+		this->oam[addrOAM>>2].p = (data >> 2) & 7;
+	}
+	addrOAM = (addrOAM +1) %128;
 }
 
-void Video::addBG(BGMAPe bg)
+void Video::addBG(unsigned int data)
 {
-	this->bg[addrBG++] = (bg);
+	if((addrBG & 1) == 0){
+		this->bg[addrBG>>1].c = data;
+	}else if((addrBG & 1) == 1){
+		this->bg[addrBG>>1].v = data & 1;
+		this->bg[addrBG>>1].h = data >> 1 & 1;
+		this->bg[addrBG>>1].p = data >> 2 & 7;
+	}
+	addrBG = (addrBG+1)%1024  ;
 }
 
-void Video::addPalette(COLORe p)
+void Video::addPalette(unsigned int data)
 {
-	this->palette[addrPalette++] = p;
-}
+	this->palette[addrPalette].red = (data>>10)&31;
+	this->palette[addrPalette].green = (data>>5)&31;
+	this->palette[addrPalette].blue = (data)&31;
 
+	addrPalette = (addrPalette +1) % 128;
+}
 
 
 const vector<SPRITEe>&  Video::getSprites()
@@ -50,22 +74,22 @@ const vector<COLORe>&  Video::getPalette()
 	return palette;
 }
 
-void  Video::setAddrSprite(int addr)
+void  Video::setAddrSprite(unsigned int addr)
 {
 	addrSprite = addr;
 }
 
-void  Video::setAddrOAM(int addr)
+void  Video::setAddrOAM(unsigned int addr)
 {
 	addrOAM = addr;
 }
 
-void  Video::setAddrPalette(int addr)
+void  Video::setAddrPalette(unsigned int addr)
 {
 	addrPalette = addr;
 }
 
-void  Video::setAddrBG(int addr)
+void  Video::setAddrBG(unsigned int addr)
 {
 	addrBG = addr;
 }
@@ -78,8 +102,8 @@ void  Video::reset()
 	bg.clear();
 	palette.clear();
 
-	sprites.resize(128);
-	oam.resize(128);
-	bg.resize(1024);
+	sprites.resize(512);
+	oam.resize(512);
+	bg.resize(2048);
 	palette.resize(128);
 }

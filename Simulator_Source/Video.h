@@ -5,36 +5,36 @@
 using namespace std;
 typedef struct
 {
-	char x, y, c;
+	unsigned char x, y, c;
 	bool v:1, h:1;
-	int p:3;
+	unsigned int p:3;
 } OAMe;
 
 typedef struct 
 {
+	unsigned char c;
 	bool v:1, h:1;
-	int p:3;
-	char c;
+	unsigned int p:3;
 } BGMAPe;
 
 typedef struct 
 {
-	char p[8][16];	
+	unsigned short p[8];	
 } SPRITEe;
 
 typedef struct 
 {
-	int red:5;
-	int green:5;
-	int blue:5;
+	unsigned int red:5;
+	unsigned int green:5;
+	unsigned int blue:5;
 } COLORe;
 
 class Video
 {	
-	int addrSprite;
-	int addrOAM;
-	int addrPalette;
-	int addrBG;
+	unsigned int addrSprite;
+	unsigned int addrOAM;
+	unsigned int addrPalette;
+	unsigned int addrBG;
 
 	vector<SPRITEe> sprites;
 	vector<OAMe> oam;
@@ -43,20 +43,20 @@ class Video
 	public:
 		Video();
 
-		void addSprite(SPRITEe); 
-		void addObject(OAMe);
-		void addBG(BGMAPe);
-		void addPalette(COLORe);
+		void addSprite(unsigned int); 
+		void addObject(unsigned int);
+		void addBG(unsigned int);
+		void addPalette(unsigned int);
 
 		const vector<SPRITEe>& getSprites();
 		const vector<OAMe>& getOAM();
 		const vector<BGMAPe>& getBG();
 		const vector<COLORe>& getPalette();
 
-		void setAddrSprite(int);
-		void setAddrOAM(int);
-		void setAddrPalette(int);
-		void setAddrBG(int);
+		void setAddrSprite(unsigned int);
+		void setAddrOAM(unsigned int);
+		void setAddrPalette(unsigned int);
+		void setAddrBG(unsigned int);
 
 		void reset();
 };

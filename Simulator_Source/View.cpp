@@ -121,16 +121,16 @@ void View::updateRegistradores()
 // -------- Video --------
 void View::updateVideo(int pos)
 {	//gtk_widget_queue_draw(outputarea);
-	gtk_widget_queue_draw_area(outputarea, 16*(pos%40), 16*(pos/40), 16, 16);
+	gtk_widget_queue_draw_area(outputarea, 16*(pos%32), 16*(pos/32), 16, 16);
 }
 
 void View::_setColor(cairo_t *cr, int color, int palette){
 	double R = 0.0, G = 0.0, B = 0.0;
 	auto p = model->Vid.getPalette();
 	auto c = p[palette << 2 | color];
-	B = c.blue/32;
-	G = c.green/32;
-	R = c.red/32; 
+	B = c.blue/(double)32;
+	G = c.green/(double)32;
+	R = c.red/(double)32; 
 	cairo_set_source_rgb(cr, R, G, B);
 }
 
@@ -138,17 +138,15 @@ void View::_draw_pixmap(cairo_t *cr, int sprite, int palette, int x, int y)
 {	
 	int i, j;
 	auto sprites = model->Vid.getSprites();
-
   	for(i=0; i<8; i++){
   		for(j=0; j<8; j++){
-  			int cor = sprites[sprite/8].p[i][j]*2 + sprites[sprite/8].p[i][j+8];
+  			int cor = ((sprites[sprite/8].p[i])>>j&1)*2 + ((sprites[sprite/8].p[i]>>(j+8))&1);
 			if(cor){   
 				_setColor(cr, cor, palette);
 		  		cairo_rectangle(cr, (2*j)+x, (2*i)+y, 2, 2);
 	      		cairo_fill(cr);
 			}
     	}
-    	printf("\n");
 	}
 }
 
@@ -211,7 +209,7 @@ void View::show_program(int linha, int pc, int sp)
 
   switch(model->pega_pedaco(ir,15,10))
 	{ case INCHAR: 	sprintf(texto, "PC: %05d\t|	IN  R%d, R%d	|	R%d      <- bus[R%d]", 			pc, _rx,_ry, _rx,_ry);		 			 break;
-	  case OUTCHAR:	sprintf(texto, "PC: %05d\t|	OUT R%d, R%d	|	bus[R%d] <- R%d", pc, _rx, _ry, _rx, _ry); break;
+	  case OUTCHAR:	sprintf(texto, "PC: %05d\t|	OUT R%d, R%d	|	bus[R%d] <- R%d", pc, _rx, _ry, _ry, _rx); break;
 	  case EI:	
 	  	switch(model->pega_pedaco(ir,0,0)){
 	  		case 1:
@@ -564,7 +562,6 @@ gboolean View::teclado(GtkWidget *widget, GdkEventKey *event, gpointer data)
 		tecla[0] = ((char*)&keyval)[0];
 		tecla[1] = 0;	
 	} 
-
 	return (gboolean) controller->userInput(tecla);
 }
 
@@ -623,19 +620,18 @@ gboolean View::ViewerExpose(GtkWidget *widget, GdkEventExpose *event, gpointer d
   	cairo_paint(cr);
 
   	auto bg = vi->model->Vid.getBG();
-
-  	for(int i=1200; i--; )
+  	for(int i=1024; i--;)
 	{
-		vi->_draw_pixmap(cr, bg[i].c, bg[i].p, 16*(i%40), 16*(i/40));
+		vi->_draw_pixmap(cr, bg[i].c, bg[i].p, 16*(i%32), 16*(i/32));
 	}
 
 	auto oam = vi->model->Vid.getOAM();
 
 	for(int i=128; i--; )
 	{	
-		vi->_draw_pixmap(cr, oam[i].c, oam[i].p, 16*(i%40), 16*(i/40));
+		vi->_draw_pixmap(cr, oam[i].c, oam[i].p, oam[i].x, oam[i].y);
 	}
-//*/
+
   cairo_destroy(cr);
 
 	return FALSE;

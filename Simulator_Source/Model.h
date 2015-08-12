@@ -52,6 +52,7 @@ class Model
 		int flagIRQ;
 
 		// -- Video --
+		int count;
 
 	public:
 		Video Vid;
