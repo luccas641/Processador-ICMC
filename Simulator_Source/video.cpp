@@ -4,7 +4,7 @@
 using namespace std;
 Video::Video()
 {
-	sprites.resize(1024);
+	sprites.resize(2048);
 	oam.resize(128);
 	bg.resize(1024);
 	palette.resize(128);
@@ -13,7 +13,7 @@ Video::Video()
 void Video::addSprite(unsigned int data)
 {
 	this->sprites[addrSprite>>3].p[addrSprite & 7] = data;
-	addrSprite = (addrSprite + 1) %1024;
+	addrSprite = (addrSprite + 1) %2048;
 }
 
 void Video::addObject(unsigned int data)

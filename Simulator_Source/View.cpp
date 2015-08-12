@@ -138,12 +138,18 @@ void View::_draw_pixmap(cairo_t *cr, int sprite, int palette, int x, int y)
 {	
 	int i, j;
 	auto sprites = model->Vid.getSprites();
+
+	_setColor(cr, 1, 0);
+	cairo_rectangle(cr, 0, 0, 640, 480);
+	cairo_fill(cr);
+
+	return;
   	for(i=0; i<8; i++){
   		for(j=0; j<8; j++){
   			int cor = ((sprites[sprite/8].p[i])>>j&1)*2 + ((sprites[sprite/8].p[i]>>(j+8))&1);
 			if(cor){   
 				_setColor(cr, cor, palette);
-		  		cairo_rectangle(cr, (2*j)+x, (2*i)+y, 2, 2);
+		  		cairo_rectangle(cr, (j+x)*4, (i+y)*3, 4, 3);
 	      		cairo_fill(cr);
 			}
     	}
@@ -514,7 +520,7 @@ void View::criarAreaVisualizacao(GtkWidget *hbox)
 { GtkWidget *outputframe = gtk_frame_new("Viewport");
 
 	outputarea = gtk_drawing_area_new();
-	gtk_widget_set_size_request(outputarea , 645, 485);
+	gtk_widget_set_size_request(outputarea , 640, 480);
 
 	gtk_container_add(GTK_CONTAINER(outputframe), outputarea);
 	gtk_box_pack_start (GTK_BOX (hbox), outputframe, false, TRUE, 0);
@@ -622,14 +628,14 @@ gboolean View::ViewerExpose(GtkWidget *widget, GdkEventExpose *event, gpointer d
   	auto bg = vi->model->Vid.getBG();
   	for(int i=1024; i--;)
 	{
-		vi->_draw_pixmap(cr, bg[i].c, bg[i].p, 16*(i%32), 16*(i/32));
+		vi->_draw_pixmap(cr, bg[i].c, bg[i].p, 8*(i%32), 8*(i/32));
 	}
 
 	auto oam = vi->model->Vid.getOAM();
 
 	for(int i=128; i--; )
 	{	
-		vi->_draw_pixmap(cr, oam[i].c, oam[i].p, oam[i].x, oam[i].y);
+		vi->_draw_pixmap(cr, oam[i].c, oam[i].p, oam[i].x*2, oam[i].y*2);
 	}
 
   cairo_destroy(cr);

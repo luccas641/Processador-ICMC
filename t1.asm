@@ -52,8 +52,8 @@ __function_label_main__:
 
 ; variavel: i alocada em 28000 com 1 bytes
 
-; endereco temporario(27999) recebe o conteudo: 8
-loadn r0, #8
+; endereco temporario(27999) recebe o conteudo: 0
+loadn r0, #0
 store 27999, r0
 
 ; endereco temporario(27998) recebe o conteudo: 4
@@ -210,6 +210,12 @@ out r0, r1
 
 ; variavel: y alocada em 27970 com 1 bytes
 
+; endereco temporario(27969) recebe o conteudo: 0
+loadn r0, #0
+store 27969, r0
+
+load r0, 27969
+store 27970, r0
 ; @(27) INSTRUCAO - while
 __loop_label_begin2__:
 ; endereco temporario(27969) recebe o conteudo: 1
@@ -240,8 +246,8 @@ load r1, 27966
 add r2, r0, r1
 store 27967, r2
 
-; endereco temporario(27966) recebe o conteudo: 512
-loadn r0, #512
+; endereco temporario(27966) recebe o conteudo: 256
+loadn r0, #256
 store 27966, r0
 
 ; expressao_binaria: 27967 % 27966
@@ -254,39 +260,6 @@ store 27967, r2
 load r0, 27967
 ; valor da stack: 27966
 store 27971, r0 ; variavel x recebe o conteudo de r0
-
-; endereco temporario(27968) recebe o conteudo da variavel: y(27970)
-load r0, 27970
-store 27968, r0
-
-; endereco temporario(27967) recebe o conteudo da variavel: y(27970)
-load r0, 27970
-store 27967, r0
-
-; endereco temporario(27966) recebe o conteudo: 1
-loadn r0, #1
-store 27966, r0
-
-; expressao_binaria: 27967 + 27966
-load r0, 27967
-load r1, 27966
-add r2, r0, r1
-store 27967, r2
-
-; endereco temporario(27966) recebe o conteudo: 512
-loadn r0, #512
-store 27966, r0
-
-; expressao_binaria: 27967 % 27966
-load r0, 27967
-load r1, 27966
-mod r2, r0, r1
-store 27967, r2
-
-; assignment salvando no endereco apontado por: endereco temporario(27968) o conteudo de endereco temporario(27967)
-load r0, 27967
-; valor da stack: 27966
-store 27970, r0 ; variavel y recebe o conteudo de r0
 
 ; endereco temporario(27968) recebe o conteudo: 0
 loadn r0, #0
@@ -321,8 +294,8 @@ store 27963, r0
 load r0, 27964
 load r1, 27963
 out r0, r1
-; endereco temporario(27962) recebe o conteudo: 8
-loadn r0, #8
+; endereco temporario(27962) recebe o conteudo: 0
+loadn r0, #0
 store 27962, r0
 
 ; endereco temporario(27961) recebe o conteudo: 3
@@ -366,7 +339,7 @@ store 27958, r0
 loadn r0, #2000
 store 27957, r0
 
-; @(35) INSTRUCAO - relacao_binaria
+; @(34) INSTRUCAO - relacao_binaria
 load r0, 27958
 load r1, 27957
 loadn r2, #27958

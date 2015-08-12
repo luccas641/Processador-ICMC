@@ -5,7 +5,7 @@ void main(){
 	out(0,1);	//BG attr	*/
 	
 
-	out(8,4); // AddrSprite 0
+	out(0,4); // AddrSprite 0
 	out(15420,5);	//addSprite2 mario
 	out(15934,5);
 	out(5160,5);
@@ -23,14 +23,13 @@ void main(){
 	out(31, 7);
 	out(31744, 7);
 
-	int x, y;
+	int x, y=0;
 	while(1){	
-		x = (x + 1) % 512;
-		y = (y + 1) % 512;
+		x = (x + 1) % 256;
 		out(0,2);
 		out(x,3);
 		out(y,3);
-		out(8,3);
+		out(0,3);
 		out(0,3);
 		for(i=0;i<2000;i++){}
 	}
