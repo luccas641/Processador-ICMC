@@ -6,28 +6,28 @@ Video::Video()
 {
 	sprites.resize(2048);
 	oam.resize(128);
-	bg.resize(1024);
+	bg.resize(1200);
 	palette.resize(128);
 }
 
 void Video::addSprite(unsigned int data)
 {
-	this->sprites[addrSprite>>3].p[addrSprite & 7] = data;
+	this->sprites[addrSprite>>3].p[addrSprite & 7] = (uint16_t) data;
 	addrSprite = (addrSprite + 1) %2048;
 }
 
 void Video::addObject(unsigned int data)
 {
 	if((addrOAM & 3) == 0){
-		this->oam[addrOAM>>2].x = data;
+		this->oam[addrOAM>>2].x = (uint16_t)data;
 	}else if((addrOAM & 3) == 1){
-		this->oam[addrOAM>>2].y = data;
+		this->oam[addrOAM>>2].y = (uint16_t)data;
 	}else if((addrOAM & 3) == 2){
-		this->oam[addrOAM>>2].c = data;
+		this->oam[addrOAM>>2].c = (uint8_t)data;
 	}else if((addrOAM & 3) == 3){
-		this->oam[addrOAM>>2].v = data & 1;
-		this->oam[addrOAM>>2].h = (data >> 1) & 1;
-		this->oam[addrOAM>>2].p = (data >> 2) & 7;
+		this->oam[addrOAM>>2].p = (data) & 7;
+		this->oam[addrOAM>>2].v = (data >> 1) & 1;
+		this->oam[addrOAM>>2].h = (data >> 2) & 1;
 	}
 	addrOAM = (addrOAM +1) %128;
 }
@@ -35,13 +35,13 @@ void Video::addObject(unsigned int data)
 void Video::addBG(unsigned int data)
 {
 	if((addrBG & 1) == 0){
-		this->bg[addrBG>>1].c = data;
+		this->bg[addrBG>>1].c = (uint8_t) data;
 	}else if((addrBG & 1) == 1){
-		this->bg[addrBG>>1].v = data & 1;
-		this->bg[addrBG>>1].h = data >> 1 & 1;
-		this->bg[addrBG>>1].p = data >> 2 & 7;
+		this->bg[addrBG>>1].p = (data) & 7;
+		this->bg[addrBG>>1].v = (data >> 1) & 1;
+		this->bg[addrBG>>1].h = (data >> 2) & 1;
 	}
-	addrBG = (addrBG+1)%1024  ;
+	addrBG = (addrBG+1)%1200  ;
 }
 
 void Video::addPalette(unsigned int data)
@@ -102,8 +102,8 @@ void  Video::reset()
 	bg.clear();
 	palette.clear();
 
-	sprites.resize(512);
-	oam.resize(512);
-	bg.resize(2048);
+	sprites.resize(2048);
+	oam.resize(128);
+	bg.resize(1200);
 	palette.resize(128);
 }

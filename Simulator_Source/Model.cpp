@@ -641,6 +641,7 @@ void Model::processador()
 
       case RTS:
       	sp++;
+      	cout << "pegou " <<sp << " " << pc;
         pc = mem[sp];
         pc++;
         c0[1] = 0;
@@ -769,10 +770,21 @@ void Model::processador()
 				break;
     }
 
-     /* Ciclo de interrupcao */
+   
+
+	auxpc = pc;
+
+	int ir2;
+
+	// ----- Ciclo de Busca: --------
+    ir2 = mem[pc];
+	pc2 = pc + 1;
+	// ----------- -- ---------------
+  /* Ciclo de interrupcao */
   if(IRQ[3] && !c0[1] && c0[0]){
   	c0[1] = 1;
-    mem[sp] = reg[pc];
+    mem[sp] = reg[pc2]-1;
+     cout << "salvou " <<sp << " " << pc;
     sp--;
 
     /* Executa interrupcao */
@@ -841,16 +853,6 @@ void Model::processador()
 	  		IRQ[15] = 0;
 	  }
   }
-
-	auxpc = pc;
-
-	int ir2;
-
-	// ----- Ciclo de Busca: --------
-    ir2 = mem[pc];
-	pc2 = pc + 1;
-	// ----------- -- ---------------
-
 	// Case das instrucoes
 	opcode = pega_pedaco(ir2,15,10);
 

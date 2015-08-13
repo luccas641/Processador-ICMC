@@ -121,7 +121,9 @@ void View::updateRegistradores()
 // -------- Video --------
 void View::updateVideo(int pos)
 {	//gtk_widget_queue_draw(outputarea);
-	gtk_widget_queue_draw_area(outputarea, 16*(pos%32), 16*(pos/32), 16, 16);
+	static int r = 0;
+	gtk_widget_queue_draw_area(outputarea, 0,r*8, 640,r*8+8);
+	r=(r+1)%30;
 }
 
 void View::_setColor(cairo_t *cr, int color, int palette){
@@ -139,17 +141,12 @@ void View::_draw_pixmap(cairo_t *cr, int sprite, int palette, int x, int y)
 	int i, j;
 	auto sprites = model->Vid.getSprites();
 
-	_setColor(cr, 1, 0);
-	cairo_rectangle(cr, 0, 0, 640, 480);
-	cairo_fill(cr);
-
-	return;
   	for(i=0; i<8; i++){
   		for(j=0; j<8; j++){
   			int cor = ((sprites[sprite/8].p[i])>>j&1)*2 + ((sprites[sprite/8].p[i]>>(j+8))&1);
 			if(cor){   
 				_setColor(cr, cor, palette);
-		  		cairo_rectangle(cr, (j+x)*4, (i+y)*3, 4, 3);
+		  		cairo_rectangle(cr, (j+x)*2, (i+y)*2, 2, 2);
 	      		cairo_fill(cr);
 			}
     	}
@@ -626,19 +623,24 @@ gboolean View::ViewerExpose(GtkWidget *widget, GdkEventExpose *event, gpointer d
   	cairo_paint(cr);
 
   	auto bg = vi->model->Vid.getBG();
-  	for(int i=1024; i--;)
+  	static int r = 0;
+
+  	if(!r)
+  	for(int i=1200; i--;)
 	{
-		vi->_draw_pixmap(cr, bg[i].c, bg[i].p, 8*(i%32), 8*(i/32));
+		vi->_draw_pixmap(cr, bg[i].c, bg[i].p, 8*(i%40), 8*(i/40));
 	}
 
 	auto oam = vi->model->Vid.getOAM();
 
 	for(int i=128; i--; )
 	{	
-		vi->_draw_pixmap(cr, oam[i].c, oam[i].p, oam[i].x*2, oam[i].y*2);
+		vi->_draw_pixmap(cr, oam[i].c, oam[i].p, oam[i].x, oam[i].y);
 	}
 
-  cairo_destroy(cr);
+  	cairo_destroy(cr);
+
+  	r=(r+1)%30;
 
 	return FALSE;
 }

@@ -2,31 +2,33 @@
 #define VIDEO_H
 
 #include <vector>
+#include <stdint.h>
 using namespace std;
 typedef struct
 {
-	unsigned char x, y, c;
+	uint16_t x, y;
+	uint8_t c;
 	bool v:1, h:1;
-	unsigned int p:3;
+	uint8_t p:3;
 } OAMe;
 
 typedef struct 
 {
-	unsigned char c;
+	uint8_t c;
 	bool v:1, h:1;
 	unsigned int p:3;
 } BGMAPe;
 
 typedef struct 
 {
-	unsigned short p[8];	
+	uint16_t p[8];	
 } SPRITEe;
 
 typedef struct 
 {
-	unsigned int red:5;
-	unsigned int green:5;
-	unsigned int blue:5;
+	uint8_t red:5;
+	uint8_t green:5;
+	uint8_t blue:5;
 } COLORe;
 
 class Video

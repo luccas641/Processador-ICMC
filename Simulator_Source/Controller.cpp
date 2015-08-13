@@ -24,8 +24,7 @@ void Controller::reset()
 {	model->reset();
 	if(resetVideo)
 	{	model->resetVideo();
-		for(int i=1024; i--; )
-			view->updateVideo(i);
+		view->updateVideo(0);
 	}
 }
 
