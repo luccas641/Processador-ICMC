@@ -114,6 +114,7 @@ eol "\n"
 "breakp"                    { SAVE_TOKEN; if(debug) printf("@(%d): achou %s - %s\n", yylineno, yytext, "BREAKP"); return TOKEN(BREAKP); }
 "out"                       { SAVE_TOKEN; if(debug) printf("@(%d): achou %s - %s\n", yylineno, yytext, "OUT"); return TOKEN(OUT); }
 "in"                        { SAVE_TOKEN; if(debug) printf("@(%d): achou %s - %s\n", yylineno, yytext, "IN"); return TOKEN(IN); }
+"asm"                       { SAVE_TOKEN; if(debug) printf("@(%d): achou %s - %s\n", yylineno, yytext, "ASM"); return TOKEN(ASM); }
 
 {L}({L}|{D})*		        { SAVE_TOKEN; if(debug) printf("@(%d): achou %s - %s\n", yylineno, yytext, "IDENTIFIER"); return IDENTIFIER; }
 

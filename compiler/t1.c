@@ -1,7 +1,7 @@
 int x=0, y=0;
 
-void kb(){
-		x= (++x)%;
+void kbHandler(){
+	x++;
 }
 
 void main(){
@@ -11,7 +11,12 @@ void main(){
 		out(0,1);	//BG c
 		out(0,1);	//BG attr
 	}
-	
+
+	int *pos = 32767;
+	*pos = &kbHandler;
+
+	asm("EI");
+
 
 	out(0,4); // AddrSprite 0
 	out(255, 5); 
@@ -47,12 +52,15 @@ void main(){
 	out(31, 7);
 	out(31744, 7);
 
+	//mario
 	out(0,2);
 	out(x,3);
 	out(y,3);
 	out(16,3);
 	out(2,3);
 	while(1){	
+		x= (x+1)%320;	
+		y= (y+1)%240;
 		out(0,2);
 		out(x,3);
 		out(y,3);

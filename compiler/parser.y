@@ -182,7 +182,7 @@ void function_definition();
 %token <token> MENOR_MENOR MAIOR_MAIOR
 %token <token> PIPE AMPERSAND TIL
 
-%token <token> BREAKP OUT IN
+%token <token> BREAKP OUT IN ASM
 
 
 // nao suportados
@@ -218,6 +218,9 @@ primary_expression
     }
     | out_statement {
         msg_sintatico("out_statement");
+    }
+    | asm_statement {
+        msg_sintatico("asm_statement");
     }
     | CONSTANT	{ 
 		msg_sintatico("CONSTANT");
@@ -459,9 +462,6 @@ unary_expression
         if(!preProcessamento && t->getEscopo() > 0 || preProcessamento && t->getEscopo() ==0)
         switch(operacao) {
             case ampersand:
-                if(stack_ampersand == -1)
-                    errorMsg("ampersand deve ser usado com variaveis");
-
                 if(!preProcessamento) {
                     msg_instrucao("; endereco");
 
@@ -1362,6 +1362,14 @@ out_statement:
     }
     ;
 
+asm_statement:
+        ASM ABRE_PARENTESES STRING_LITERAL FECHA_PARENTESES { 
+        if(!preProcessamento) {
+            cout << *$3 <<endl;
+        }
+    }
+    ;
+
 labeled_statement
 	: IDENTIFIER DOIS_PONTOS statement { 
 		msg_sintatico("IDENTIFIER DOIS_PONTOS statement");
@@ -1900,16 +1908,28 @@ void push(string value, int a) {
             case 1: // variavel
                 if(debug_instrucao) 
                     cout << "; " << t->buscaEndereco(stack) << "(" << stack << ") recebe o conteudo da variavel: " << t->buscaEndereco(atoi(value.c_str())) << "(" << value << ")" << endl; 
-                cout << "load r0, " << value << endl 
-                     << "store " << stack << ", r0" << endl << endl;
-                stack_ampersand = atoi(value.c_str());
 
-                mapa[stack] = atoi(value.c_str());
+                if(!value.compare("-1")){
+                    cout << "loadn r0, " << "#__function_label_"<< t->buscaEndereco(atoi(value.c_str())) << "__" << endl 
+                         << "store " << stack << ", r0" << endl << endl;
+                    
+                    stack_ampersand = atoi(value.c_str());
+
+                    mapa[stack] = atoi(value.c_str());
+                }else{
+                    cout << "load r0, " << value << endl 
+                         << "store " << stack << ", r0" << endl << endl;
+                    stack_ampersand = atoi(value.c_str());
+
+                    mapa[stack] = atoi(value.c_str());
+                }
                 break;
 
             case 2: // valor constante numero
+
+                if(!value.compare("-1")) break;
                 if(debug_instrucao) 
-                    cout << "; " << t->buscaEndereco(stack) << "(" << stack << ") recebe o conteudo: " << value << endl; 
+                    cout << "; " << t->buscaEndereco(stack) << "(" << stack << ") constante recebe o conteudo: " << value << endl; 
                 cout << "loadn r0, #" << value << endl 
                      << "store " << stack << ", r0" << endl << endl;
 
@@ -1918,7 +1938,7 @@ void push(string value, int a) {
 
             case 3: // valor constante caracter
                 if(debug_instrucao) 
-                    cout << "; " << t->buscaEndereco(stack) << "(" << stack << ") recebe o conteudo: " << value << endl; 
+                    cout << "; " << t->buscaEndereco(stack) << "(" << stack << ") caracter recebe o conteudo: " << value << endl; 
                 cout << "loadn r0, #'" << value << "'" << endl 
                      << "store " << stack << ", r0" << endl << endl;
 
