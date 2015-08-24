@@ -1,3 +1,4 @@
+
 #include "Video.h"
 #include <iostream>
 
@@ -5,7 +6,7 @@ using namespace std;
 Video::Video()
 {
 	sprites.resize(2048);
-	oam.resize(128);
+	oam.resize(512);
 	bg.resize(1200);
 	palette.resize(128);
 }
@@ -16,30 +17,26 @@ void Video::addSprite(unsigned int data)
 	addrSprite = (addrSprite + 1) %2048;
 }
 
-void Video::addObject(unsigned int data)
+void Video::addObject(unsigned short data)
 {
 	if((addrOAM & 3) == 0){
-		this->oam[addrOAM>>2].x = (uint16_t)data;
+		this->oam[addrOAM>>2].x = data;
 	}else if((addrOAM & 3) == 1){
-		this->oam[addrOAM>>2].y = (uint16_t)data;
+		this->oam[addrOAM>>2].y = data;
 	}else if((addrOAM & 3) == 2){
-		this->oam[addrOAM>>2].c = (uint8_t)data;
+		this->oam[addrOAM>>2].c = data;
 	}else if((addrOAM & 3) == 3){
-		this->oam[addrOAM>>2].p = (data) & 7;
-		this->oam[addrOAM>>2].v = (data >> 1) & 1;
-		this->oam[addrOAM>>2].h = (data >> 2) & 1;
+		this->oam[addrOAM>>2].p = (data);
 	}
-	addrOAM = (addrOAM +1) %128;
+	addrOAM = (addrOAM +1) %512;
 }
 
 void Video::addBG(unsigned int data)
 {
 	if((addrBG & 1) == 0){
-		this->bg[addrBG>>1].c = (uint8_t) data;
+		this->bg[addrBG>>1].c = data;
 	}else if((addrBG & 1) == 1){
-		this->bg[addrBG>>1].p = (data) & 7;
-		this->bg[addrBG>>1].v = (data >> 1) & 1;
-		this->bg[addrBG>>1].h = (data >> 2) & 1;
+		this->bg[addrBG>>1].p = data;
 	}
 	addrBG = (addrBG+1)%1200  ;
 }
@@ -103,7 +100,7 @@ void  Video::reset()
 	palette.clear();
 
 	sprites.resize(2048);
-	oam.resize(128);
+	oam.resize(512);
 	bg.resize(1200);
 	palette.resize(128);
 }

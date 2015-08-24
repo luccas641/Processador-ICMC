@@ -114,28 +114,29 @@ extern int yydebug;
     BREAKP = 324,
     OUT = 325,
     IN = 326,
-    UNSIGNED = 327,
-    UNION = 328,
-    TYPE_NAME = 329,
-    TYPEDEF = 330,
-    STRUCT = 331,
-    SIZEOF = 332,
-    SIGNED = 333,
-    RESTRICT = 334,
-    REGISTER = 335,
-    INLINE = 336,
-    IMAGINARY = 337,
-    ELLIPSIS = 338,
-    DO = 339,
-    COMPLEX = 340,
-    AUTO = 341,
-    VOLATILE = 342,
-    ENUM = 343,
-    PONTO = 344,
-    DOUBLE = 345,
-    SHORT = 346,
-    LONG = 347,
-    FLOAT = 348
+    ASM = 327,
+    UNSIGNED = 328,
+    UNION = 329,
+    TYPE_NAME = 330,
+    TYPEDEF = 331,
+    STRUCT = 332,
+    SIZEOF = 333,
+    SIGNED = 334,
+    RESTRICT = 335,
+    REGISTER = 336,
+    INLINE = 337,
+    IMAGINARY = 338,
+    ELLIPSIS = 339,
+    DO = 340,
+    COMPLEX = 341,
+    AUTO = 342,
+    VOLATILE = 343,
+    ENUM = 344,
+    PONTO = 345,
+    DOUBLE = 346,
+    SHORT = 347,
+    LONG = 348,
+    FLOAT = 349
   };
 #endif
 
@@ -144,12 +145,12 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 136 "parser.y" /* yacc.c:1909  */
+#line 138 "parser.y" /* yacc.c:1909  */
 
     int token;
     std::string *string;
 
-#line 153 "parser.hpp" /* yacc.c:1909  */
+#line 154 "parser.hpp" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

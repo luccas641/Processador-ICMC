@@ -37,9 +37,10 @@ View::View(Model *model, ControllerInterface *controller)
 	gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 0);
 	criarLabelsInferior(vbox);
 
-  gtk_container_add(GTK_CONTAINER(window), vbox);
+  	gtk_container_add(GTK_CONTAINER(window), vbox);
 
 	gtk_widget_show_all(window);
+
 }
 
 
@@ -122,7 +123,7 @@ void View::updateRegistradores()
 void View::updateVideo(int pos)
 {	//gtk_widget_queue_draw(outputarea);
 	static int r = 0;
-	gtk_widget_queue_draw_area(outputarea, 0,r*8, 640,r*8+8);
+	gtk_widget_queue_draw_area(outputarea, 0,0,640,480);
 	r=(r+1)%30;
 }
 
@@ -565,7 +566,8 @@ gboolean View::teclado(GtkWidget *widget, GdkEventKey *event, gpointer data)
 		tecla[0] = ((char*)&keyval)[0];
 		tecla[1] = 0;	
 	} 
-	return (gboolean) controller->userInput(tecla);
+	controller->userInput(tecla);
+	return FALSE;
 }
 
 void View::destroy (GtkWidget *window, gpointer data)
@@ -623,24 +625,20 @@ gboolean View::ViewerExpose(GtkWidget *widget, GdkEventExpose *event, gpointer d
   	cairo_paint(cr);
 
   	auto bg = vi->model->Vid.getBG();
-  	static int r = 0;
 
-  	if(!r)
   	for(int i=1200; i--;)
 	{
 		vi->_draw_pixmap(cr, bg[i].c, bg[i].p, 8*(i%40), 8*(i/40));
 	}
 
 	auto oam = vi->model->Vid.getOAM();
-
+//
 	for(int i=128; i--; )
 	{	
 		vi->_draw_pixmap(cr, oam[i].c, oam[i].p, oam[i].x, oam[i].y);
 	}
 
   	cairo_destroy(cr);
-
-  	r=(r+1)%30;
 
 	return FALSE;
 }

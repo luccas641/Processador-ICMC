@@ -397,9 +397,89 @@ void Model::processador()
 	}
 	count ++;
 
+if(opcode != RTS){
+	    bool irq = false;
+	    /* Ciclo de interrupcao */
+	    for(i=0;i<16;i++ ){
+	    	if(IRQ[i]){
+	    		irq = true;
+	    		break;
+	    	}
+	    }
+	  if(irq && !c0[1] && c0[0]){
+	  	c0[1] = 1;
+	    mem[sp] = pc;
+	    sp--;
+
+	    /* Executa interrupcao */
+		  if(IRQ[0]){
+		  		pc = mem[0x3f00];
+		  		IRQ[0] = 0;
+		  }
+		  else if(IRQ[1]){
+		  		pc = mem[0x3f01];
+		  		IRQ[1] = 0;
+		  }
+		  else if(IRQ[2]){
+		  		pc = mem[0x3f02];
+		  		IRQ[2] = 0;
+		  }
+		  else if(IRQ[3]){
+		  		pc = mem[0x3f03];
+		  		IRQ[3] = 0;
+		  }
+		  else if(IRQ[4]){
+		  		pc = mem[0x3f04];
+		  		IRQ[4] = 0;
+		  }
+		  else if(IRQ[5]){
+		  		pc = mem[0x3f05];
+		  		IRQ[5] = 0;
+		  }
+		  else if(IRQ[6]){
+		  		pc = mem[0x3f06];
+		  		IRQ[6] = 0;
+		  }
+		  else if(IRQ[7]){
+		  		pc = mem[0x3f07];
+		  		IRQ[7] = 0;
+		  }
+		  else if(IRQ[8]){
+		  		pc = mem[0x3f08];
+		  		IRQ[8] = 0;
+		  }
+		  else if(IRQ[9]){
+		  		pc = mem[0x3f09];
+		  		IRQ[9] = 0;
+		  }
+		  else if(IRQ[10]){
+		  		pc = mem[0x3f0a];
+		  		IRQ[10] = 0;
+		  }
+		  else if(IRQ[11]){
+		  		pc = mem[0x3f0b];
+		  		IRQ[11] = 0;
+		  }
+		  else if(IRQ[12]){
+		  		pc = mem[0x3f0c];
+		  		IRQ[12] = 0;
+		  }
+		  else if(IRQ[13]){
+		  		pc = mem[0x3f0d];
+		  		IRQ[13] = 0;
+		  }
+		  else if(IRQ[14]){
+		  		pc = mem[0x3f0e];
+		  		IRQ[14] = 0;
+		  }
+		  else if(IRQ[15]){
+		  		pc = mem[0x3f0f];
+		  		IRQ[15] = 0;
+		  }
+	  }
+	}  
   // ----- Ciclo de Busca: --------
 	ir = mem[pc];
-
 	if(pc > 32767)
 	{ printf("Ultrapassou limite da memoria, coloque um jmp no fim do código\n");
 		exit(1);
@@ -424,18 +504,16 @@ void Model::processador()
 		    }else if(reg[ry] >= 0x990 && reg[ry] <= 0x994){//PIT
 
 		    }else{
-				cout << "Erro: Voce tentou usar uma porta nao implementada"<< endl;
+				cout << "Erro: Voce tentou usar uma porta nao implementada " << reg[ry] << endl;
 			}
 		break;
 
     case OUTCHAR:
 			if(reg[ry] == 0) //Video ADDR BG
 			{	
-				cout << "Endereco BG" << endl;
 				Vid.setAddrBG(reg[rx]);
 			}else if(reg[ry] == 1) //Video BG
 			{	
-				cout << "BG" << endl;
 				Vid.addBG(reg[rx]);
 			}else if(reg[ry] == 2) //Video ADDR OAM
 			{	
@@ -445,26 +523,22 @@ void Model::processador()
 				Vid.addObject(reg[rx]);
 			}else if(reg[ry] == 4) //Video ADDR SPRITE
 			{	
-				cout << "Endereco Sprite" << endl;
 				Vid.setAddrSprite(reg[rx]);
 			}else if(reg[ry] == 5) //Video SPRITE
 			{	
-				cout << " Sprite" << endl;
 				Vid.addSprite(reg[rx]);
 			}else if(reg[ry] == 6) //Video ADDR PALETTE
 			{	
-				cout << "Endereco Palette" << endl;
 				Vid.setAddrPalette(reg[rx]);
 			}else if(reg[ry] == 7) //Video PALETTE
 			{	
-				cout << " Palette" << endl;
 				Vid.addPalette(reg[rx]);
 			}else if(reg[ry] >= 0x901 && reg[ry] <= 0x902){ //com1
 
 			}else if(reg[ry] >= 0x990 && reg[ry] <= 0x994){//PIT
 
 			}else{
-				cout << "Erro: Voce tentou usar uma porta nao implementada"<< endl;
+				cout << "Erro: Voce tentou usar uma porta nao implementada " << reg[ry] << endl;
 			}
 
 			break;
@@ -641,11 +715,15 @@ void Model::processador()
 
       case RTS:
       	sp++;
-      	cout << "pegou " <<sp << " " << pc;
         pc = mem[sp];
-        pc++;
-        c0[1] = 0;
+        if(!pega_pedaco(ir,0,0)){
+      		pc++;
+        }
+        else{
+        	c0[1] = 0;
+        }
         break;
+
 
       case ADD:
         reg[rx] = reg[ry] + reg[rz]; // Soma sem Carry
@@ -770,8 +848,8 @@ void Model::processador()
 				break;
     }
 
+ 	
    
-
 	auxpc = pc;
 
 	int ir2;
@@ -779,80 +857,7 @@ void Model::processador()
 	// ----- Ciclo de Busca: --------
     ir2 = mem[pc];
 	pc2 = pc + 1;
-	// ----------- -- ---------------
-  /* Ciclo de interrupcao */
-  if(IRQ[3] && !c0[1] && c0[0]){
-  	c0[1] = 1;
-    mem[sp] = reg[pc2]-1;
-     cout << "salvou " <<sp << " " << pc;
-    sp--;
-
-    /* Executa interrupcao */
-	  if(IRQ[0]){
-	  		pc = mem[0x3f00];
-	  		IRQ[0] = 0;
-	  }
-	  else if(IRQ[1]){
-	  		pc = mem[0x3f01];
-	  		IRQ[1] = 0;
-	  }
-	  else if(IRQ[2]){
-	  		pc = mem[0x3f02];
-	  		IRQ[2] = 0;
-	  }
-	  else if(IRQ[3]){
-	  		pc = mem[0x3f03];
-	  		IRQ[3] = 0;
-	  }
-	  else if(IRQ[4]){
-	  		pc = mem[0x3f04];
-	  		IRQ[4] = 0;
-	  }
-	  else if(IRQ[5]){
-	  		pc = mem[0x3f05];
-	  		IRQ[5] = 0;
-	  }
-	  else if(IRQ[6]){
-	  		pc = mem[0x3f06];
-	  		IRQ[6] = 0;
-	  }
-	  else if(IRQ[7]){
-	  		pc = mem[0x3f07];
-	  		IRQ[7] = 0;
-	  }
-	  else if(IRQ[8]){
-	  		pc = mem[0x3f08];
-	  		IRQ[8] = 0;
-	  }
-	  else if(IRQ[9]){
-	  		pc = mem[0x3f09];
-	  		IRQ[9] = 0;
-	  }
-	  else if(IRQ[10]){
-	  		pc = mem[0x3f0a];
-	  		IRQ[10] = 0;
-	  }
-	  else if(IRQ[11]){
-	  		pc = mem[0x3f0b];
-	  		IRQ[11] = 0;
-	  }
-	  else if(IRQ[12]){
-	  		pc = mem[0x3f0c];
-	  		IRQ[12] = 0;
-	  }
-	  else if(IRQ[13]){
-	  		pc = mem[0x3f0d];
-	  		IRQ[13] = 0;
-	  }
-	  else if(IRQ[14]){
-	  		pc = mem[0x3f0e];
-	  		IRQ[14] = 0;
-	  }
-	  else if(IRQ[15]){
-	  		pc = mem[0x3f0f];
-	  		IRQ[15] = 0;
-	  }
-  }
+	
 	// Case das instrucoes
 	opcode = pega_pedaco(ir2,15,10);
 
@@ -904,9 +909,12 @@ void Model::processador()
                     pc2++;
             break;
 
-    case RTS:
+    	case RTS:
 			pc2 = mem[sp+1];
-			pc2++;
+
+        	if(!pega_pedaco(ir,0,0)){
+				pc2++;
+			}
 			break;
 
 		case STORE:
@@ -926,6 +934,6 @@ void Model::processador()
 			break;
 
 		default: break;
-  }
+   }
 }
 

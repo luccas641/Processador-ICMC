@@ -55,6 +55,8 @@ string salva_identificador;
 int stack_ampersand = -1;
 
 int flag_ponteiro = -1;
+int flag_ponteiro_assignment = 0;
+int flag_assignment = 0;
 
 // caso especial de matriz
 int endereco_base;
@@ -481,9 +483,16 @@ unary_expression
                 break;
 
             case asterisco:
-                cout<< "load r0, " << stack+1 << endl
-                    << "loadi r1, r0" << endl
-                    << "store " << stack+1 << ", r1" << endl;
+                if(!flag_assignment){
+                    flag_ponteiro_assignment = 1;
+                    flag_assignment =0;
+                    cout<< "load r0, " << stack+1 << endl
+                        << "store " << stack+1 << ", r0" << endl;
+                }else{
+                    cout<< "load r0, " << stack+1 << endl
+                        << "loadi r1, r0" << endl
+                        << "store " << stack+1 << ", r1" << endl;
+                }
                 break;
 
             case menos:
@@ -694,12 +703,11 @@ assignment_expression
 	}
     | unary_expression assignment_operator assignment_expression	{ 
 		msg_sintatico("unary_expression assignment_operator assignment_expression");
-
         if(!preProcessamento && t->getEscopo() > 0 || preProcessamento && t->getEscopo() ==0) {
             if(debug_instrucao)
                 cout<< "; assignment salvando no endereco apontado por: " << t->buscaEndereco(stack+2) << "(" << stack+2 << ") o conteudo de " 
                     << t->buscaEndereco(stack+1) << "(" << stack+1 << ")" << endl;
-
+            flag_assignment = 1;
             cout<< "load r0, " << stack+1 << endl; // resultado
             switch(atribuicao) {
                 case eq:
@@ -744,18 +752,26 @@ assignment_expression
                 default:
                     break;
             }
-            cout << "; valor da stack: " << stack << endl;
-            if(mapa[stack+2] > 0) {
-                cout<< "store " << mapa[stack+2] << ", r0 ; variavel " << t->buscaEndereco(mapa[stack+2]) << " recebe o conteudo de r0" << endl << endl; 
+            if(flag_ponteiro_assignment){
+                flag_ponteiro_assignment = 0;
+                cout << ";Assignment ponteiro" <<endl; 
+                cout << "load r7, " << mapa[stack+2] <<endl;
+                cout << "storei r7, r0 ; endereco apontado por r7 recebe o conteudo de r0" << endl << endl; 
                 mapa[stack+2] = -1;
+            }else{
+                cout << "; valor da stack: " << stack << endl;
+                if(mapa[stack+2] > 0) {
+                    cout<< "store " << mapa[stack+2] << ", r0 ; variavel " << t->buscaEndereco(mapa[stack+2]) << " recebe o conteudo de r0" << endl << endl; 
+                    mapa[stack+2] = -1;
+                }
+                else if(mapa[stack+2] == -2) {
+                    cout<< "storei r7, r0 ; endereco apontado por r7 recebe o conteudo de r0" << endl << endl; 
+                    mapa[stack+2] = -1;
+                }
+                else 
+                    errorMsg("acesso errado a matriz");
             }
-            else if(mapa[stack+2] == -2) {
-                cout<< "storei r7, r0 ; endereco apontado por r7 recebe o conteudo de r0" << endl << endl; 
-                mapa[stack+2] = -1;
-            }
-            else 
-                errorMsg("acesso errado a matriz");
-            stack = stack+2;
+            stack = stack+2;  
         }
 	}
 	;
@@ -1345,8 +1361,8 @@ in_statement:
         if(!preProcessamento) {
             cout << "load r1, " << stack+1 << endl;
             cout << "in r0, r1" << endl; 
-            cout << "store " << stack << ", r0" << endl;
-            stack--;
+            cout << "store " << stack+1 << ", r0" << endl;
+         
         }
     }
     ;

@@ -7,16 +7,14 @@ using namespace std;
 typedef struct
 {
 	uint16_t x, y;
-	uint8_t c;
-	bool v:1, h:1;
-	uint8_t p:3;
+	uint16_t c;
+	uint16_t p;
 } OAMe;
 
 typedef struct 
 {
-	uint8_t c;
-	bool v:1, h:1;
-	unsigned int p:3;
+	uint16_t c;
+	uint16_t p;
 } BGMAPe;
 
 typedef struct 
@@ -46,7 +44,7 @@ class Video
 		Video();
 
 		void addSprite(unsigned int); 
-		void addObject(unsigned int);
+		void addObject(unsigned short);
 		void addBG(unsigned int);
 		void addPalette(unsigned int);
 
