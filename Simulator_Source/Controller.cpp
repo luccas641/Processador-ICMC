@@ -20,11 +20,11 @@ Controller::Controller(Model *model)
 Controller::~Controller()
 {	delete view; }
 
-void Controller::reset() 	
+void Controller::reset()
 {	model->reset();
 	if(resetVideo)
 	{	model->resetVideo();
-		view->updateVideo();
+		updateVideo();
 	}
 }
 
@@ -34,7 +34,7 @@ void Controller::AlteraRegistradores(GtkWidget **TextEntryRegs)
 
 	for(i=8; i--; )
 	{	j = charToInt(gtk_entry_get_text( GTK_ENTRY(TextEntryRegs[i])) );
-		
+
 		if( j == -1 || j > 32768) // se for 0 = erro ou maior do que um numero de 16 bits
 		{	aux[i] = -1;
 			continue;
@@ -57,7 +57,7 @@ int Controller::charToInt(const char *string)
 	{	c = string[i];
 		if('0' <= c && c <= '9')
 			soma += fator * (c - '0');
-		
+
 		else if(hex && ('A' <= c && c <= 'F') )
 			soma  += fator * (c - 'A' + 10);
 
@@ -76,7 +76,7 @@ int Controller::charToInt(const char *string)
 }
 
 bool Controller::userInput(const char *tecla)
-{	
+{
 
 	if( strlen(tecla) > 1)
 	{	if( !strcmp(tecla,"End") )
@@ -91,28 +91,28 @@ bool Controller::userInput(const char *tecla)
 			return FALSE;
 		}
 		else if( !strcmp(tecla, "Escape") )
-		{	view->destroy(NULL, NULL); 
+		{	view->destroy(NULL, NULL);
 			return TRUE;
 		}
 		else if( !strcmp(tecla, "Home") )
-		{	switchExecucao(); 
+		{	switchExecucao();
 			return TRUE;
 		}
 		else if( !strcmp(tecla, "Insert") )
-		{	reset(); 
+		{	reset();
 			return TRUE;
 		}
 		return FALSE;
 	}
 
-	
+
 	if(tecla[0]!=255){
 		key = tecla[0];
 		model->setIRQ(3,true);
 	}
 
 	//return FALSE;
-	
+
 	return FALSE; // TRUE para impedir que o evento continue para os filhos, FALSE para permitir
 }
 
@@ -164,5 +164,5 @@ int Controller::getKey()
 
 
 void Controller::irq(unsigned n){
-	model->setIRQ(n,true);	
+	model->setIRQ(n,true);
 }

@@ -5,7 +5,7 @@
 using namespace std;
 
 int main(int argc, char *argv[])
-{	
+{
 //*
   // init threads
   gdk_threads_init();
@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
 	{	int i = 0;
 		while(argv[1][i] != '.' && argv[1][i] != '\0')
 			i++;
+      printf("%c%c%c", argv[1][i+1], argv[1][i+2], argv[1][i+3]);
 		if(argv[1][i+1] != 'm' || argv[1][i+2] != 'i' || argv[1][i+3] != 'f')
 		{	cout << "nao eh mif" << endl;
 			return 1;
@@ -42,4 +43,3 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
-

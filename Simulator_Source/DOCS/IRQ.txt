@@ -1,16 +1,16 @@
 16128		irq0		PIT0
 16129		irq1		PIT1
 16130		irq2		PIT2
-16131		irq3		KBD
+16131		irq3		Keyboard
 16132		irq4
 16133		irq5
-16134		irq6		COM1 - TX
-16135		irq7		COM1 - RX
-16136		irq8		
-16137		irq9		
-16138		irq10		
-16139		irq11		GPIO1
-16140		irq12       GPIO0
+16134		irq6
+16135		irq7
+16136		irq8
+16137		irq9
+16138		irq10
+16139		irq11
+16140		irq12
 16141		irq13
-16142		irq14		
-16143		irq15		SW
+16142		irq14
+16143		irq15
