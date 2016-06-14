@@ -1,0 +1,22 @@
+{
+  "name": "SpriteEditor",
+  "homepage": "https://github.com/luccas641/Processador-ICMC",
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "mjolnic-bootstrap-colorpicker": "bootstrap-colorpicker#^2.3.3",
+    "angular": "^1.5.6",
+    "angular-contenteditable": "^0.3.8",
+    "angular-local-storage": "^0.2.7",
+    "angular-bootstrap-colorpicker": "^3.0.25"
+  }
+}

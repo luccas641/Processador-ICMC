@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Sprite Editor</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="bower_components/angular-bootstrap-colorpicker/css/colorpicker.min.css" rel="stylesheet">
+    <style>
+      td {
+          border: 1px solid #000;
+      }
+
+      #editor td, #background td, #paletas td{
+        width: 18px;
+        height: 16px;
+      }
+
+      #preview table, #sprites table{
+        border: 1px #000 solid;
+      }
+
+      #preview td {
+        width: 3px;
+        height: 3px;
+        border: 0px;
+      }
+
+      #sprites, #paletas, #source{
+        overflow: auto;
+        max-height: 80vh;
+      }
+
+      tr:{
+        border: 0px;
+      }
+    </style>
+  </head>
+
+  <body ng-app="editor" ng-controller='mainController as vm'>
+    <br>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-2">
+          <div class="panel panel-primary">
+            <div class="panel-heading">Sprites</div>
+            <div class="panel-body" id="sprites">
+              <div class="row" ng-repeat="sprite in vm.sprites" style="margin-top:2px;">
+                <div class="col-md-1">
+                  {{sprite.id}}
+                </div>
+                <div class="col-md-5">
+                  <table id="preview">
+                    <tr data-row="{{row.id}}" ng-repeat="row in sprite.rows">
+                      <td data-col="{{col.id}}"  ng-style="{'background-color': col.color}" ng-repeat="col in row.cols"></td>
+                    </tr>
+                  </table>
+                </div>
+                <div class="col-md-3">
+                  <button class="button button-primary" ng-click="vm.loadSprite(sprite.id)">Editar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="panel panel-primary">
+            <div class="panel-heading">Paletas</div>
+            <div class="panel-body" id="paletas">
+              <div class="row" ng-repeat="paleta in vm.palettes">
+                <div class="col-md-1">
+                  {{paleta.id}}
+                </div>
+                <div class="col-md-5">
+                  <table>
+                    <tr>
+                      <td ng-style="{'background-color': cor.value}"  ng-repeat="cor in paleta.colors">
+
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                <div class="col-md-3">
+                  <button class="button button-primary" ng-click="vm.loadPalette(paleta.id)">Editar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="panel panel-primary">
+                    <div class="panel-heading">Sprite Editor - {{vm.currentSprite.id}}</div>
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div id="editor">
+                            <table>
+                              <tr data-row="{{row.id}}" ng-repeat="row in vm.currentSprite.rows">
+                                <td data-col="{{col.id}}" ng-change ng-style="{'background-color': col.color}"  ng-model="col.val"  ng-repeat="col in row.cols" contenteditable=""></td>
+                              </tr>
+                            </table>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="panel panel-primary">
+                            <div class="panel-heading">Preview</div>
+                            <div class="panel-body">
+                              <div id="preview">
+                                 <table>
+                                   <tr data-row="{{row.id}}" ng-repeat="row in vm.currentSprite.rows">
+                                     <td data-col="{{col.id}}" ng-style="{'background-color': col.color}" ng-repeat="col in row.cols"></td>
+                                   </tr>
+                                 </table>
+                               </div>
+                            </div>
+                          </div>
+                          <labal>Paleta:</label><select class="form-control" name="singleSelect" ng-model="vm.currentSprite.palette">
+                            <option ng-repeat="palette in vm.palettes" value="{{palette.id}}">{{palette.id}}</option>
+                          </select><br>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div id="palette">
+                    <div class="panel panel-primary">
+                      <div class="panel-heading">Paleta Editor - {{vm.currentPalette.id}}</div>
+                      <div class="panel-body">
+                        <table class="table">
+                          <tr>
+                            <td>0
+                            </td>
+                            <td ><input data-color="0" class="form-control" value="Transparente" disabled>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>1
+                            </td>
+                            <td ><input data-color="1" colorpicker="rgb" ng-style="{'background-color': vm.currentPalette.colors[0].value}" ng-model="vm.currentPalette.colors[0].value" class="form-control">
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>2
+                            </td>
+                            <td ><input data-color="2" colorpicker="rgb" ng-style="{'background-color': vm.currentPalette.colors[1].value}" ng-model="vm.currentPalette.colors[1].value" class="form-control">
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>3
+                            </td>
+                            <td  ><input data-color="3" colorpicker="rgb" ng-style="{'background-color': vm.currentPalette.colors[2].value}" ng-model="vm.currentPalette.colors[2].value" class="form-control">
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="panel panel-primary">
+                <div class="panel-heading">Código</div>
+                <div class="panel-body">
+                  <div id="source">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /.container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="bower_components/jquery/dist/jquery.min.js"><\/script>')</script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js"></script>
+    <script src="bower_components/angular-contenteditable/angular-contenteditable.js"></script>
+    <script src="bower_components/angular-local-storage/dist/angular-local-storage.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
