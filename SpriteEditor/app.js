@@ -106,9 +106,9 @@
 
       $("#source").append("<br><br>palettes : var #128<br>");
       angular.forEach(vm.palettes, function(palette, key){
-        $("#source").append("static palettes + #"+(key*4+1)+", #"+palette.colors[0].value+"<br>");
-        $("#source").append("static palettes + #"+(key*4+2)+", #"+palette.colors[1].value+"<br>");
-        $("#source").append("static palettes + #"+(key*4+3)+", #"+palette.colors[2].value+"<br>");
+        $("#source").append("static palettes + #"+(key*4+1)+", #"+palette.colors[0].color+"<br>");
+        $("#source").append("static palettes + #"+(key*4+2)+", #"+palette.colors[1].color+"<br>");
+        $("#source").append("static palettes + #"+(key*4+3)+", #"+palette.colors[2].color+"<br>");
       });
     }
 
@@ -121,11 +121,10 @@
         angular.forEach(row.cols, function(col, colId){
           if(col.val && col.val>0){
             var re = /rgb\(([0-9]{0,3}),([0-9]{0,3}),([0-9]{0,3})\)/g;
-            vm.palettes[vm.currentSprite.palette].colors[col.val-1].color = vm.palettes[vm.currentSprite.palette].colors[col.val-1].value;
-            var m = re.exec(vm.palettes[vm.currentSprite.palette].colors[col.val-1].color);
+            var m = re.exec(vm.palettes[vm.currentSprite.palette].colors[col.val-1].value);
             if(m){
-              parseInt(m[3]/256*32)+parseInt(m[2]/256*32)*32+parseInt(m[1]/256*32)*32*32;
-              col.color = vm.palettes[vm.currentSprite.palette].colors[col.val-1].color;
+              vm.palettes[vm.currentSprite.palette].colors[col.val-1].color = parseInt(m[3]/256*32)+parseInt(m[2]/256*32)*32+parseInt(m[1]/256*32)*32*32;
+              col.color = vm.palettes[vm.currentSprite.palette].colors[col.val-1].value;
             }else{
               col.color = "";
             }
@@ -144,7 +143,7 @@
       vm.updateColors();
     }, 200);
     $scope.$on('colorpicker-selected', function(event, colorObject){
-      $rootScope.$broadcast("updateColors");
+
     });
   }
 })()
