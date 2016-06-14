@@ -13,7 +13,7 @@ y : var #1
 ; a cada 8 entradas forma 1 sprite.
 ;
 sprites : var #2048
-static sprites + #0, #255 ;Sprite 0 - Bloco preenchido com cor 1
+static sprites + #0, #255	;Sprite 0 - Bloco Preenchido
 static sprites + #1, #255
 static sprites + #2, #255
 static sprites + #3, #255
@@ -21,14 +21,14 @@ static sprites + #4, #255
 static sprites + #5, #255
 static sprites + #6, #255
 static sprites + #7, #255
-static sprites + #8, #255 ; Sprite 1 - Bloco Preenchido com cor 1
-static sprites + #9, #255
-static sprites + #10, #255
-static sprites + #11, #255
-static sprites + #12, #255
-static sprites + #13, #255
-static sprites + #14, #255
-static sprites + #15, #255
+static sprites + #8, #65472	;Sprite 1 - Tijolo
+static sprites + #9, #65472
+static sprites + #10, #65472
+static sprites + #11, #0
+static sprites + #12, #65292
+static sprites + #13, #65292
+static sprites + #14, #65292
+static sprites + #15, #0
 static sprites + #16, #15420	; Sprite 2 - Mario
 static sprites + #17, #15934
 static sprites + #18, #5160
@@ -66,10 +66,10 @@ static paleta + #8, #0		; Paleta 2 - Mario
 static paleta + #9, #25521
 static paleta + #10, #31
 static paleta + #11, #31744
-static paleta + #12, #0
-static paleta + #13, #0
-static paleta + #14, #0
-static paleta + #15, #0
+static paleta + #12, #0		; Paleta 3 -
+static paleta + #13, #0 	;
+static paleta + #14, #0 ;
+static paleta + #15, #0 ;
 static paleta + #16, #0
 static paleta + #17, #0
 static paleta + #18, #0
@@ -81,15 +81,17 @@ static paleta + #20, #0
 ;
 ;	Parecido com o do video anterior.
 ;	cada posicao vc escolhe uma paleta e um sprite pra ser o background
-; Primeiro vc envia o sprite e depois envia a paleta que esse sprite vai usar
-;
+; Formato:
+;	VH0PPPPP 0SSSSSSS - Vertical, Horizontal, Paleta e Sprite
+
 background : var #1200			; 1200 posicoes da tela
-static background + #0, #0
-static background + #1, #0
-static background + #2, #0
-static background + #3, #0
-static background + #4, #0
-static background + #5, #0
+static background + #0, #0			;
+static background + #1, #0			;
+static background + #2, #0			;
+static background + #3, #0			;
+
+;Adicionar os outros
+
 ;Adicionar os outros
 
 ;; OAM Object Attribute Memory
@@ -98,13 +100,13 @@ static background + #5, #0
 ;			Coordenada X
 ;			Coordenada Y
 ;			Endereco do Sprite
-;			Endereco da Paleta
+;			Espelhamento + Endereco da Paleta (pode somar 256 para espelhar verticalmente e/ou pode somar 512 para espelhar verticalmente)
 ;
 oam : var #512					; 128 personagens na tela ao mesmo tempo, cada um usa 4 posicoes.
 static oam + #0, #0			; OAM 0 - x
 static oam + #1, #0			; y
 static oam + #2, #16		; sprite
-static oam + #3, #2			; Paleta
+static oam + #3, #2		; Paleta 2
 static oam + #4, #0			; OAM 1
 static oam + #5, #0
 static oam + #6, #0
@@ -159,6 +161,18 @@ loopLoadOAMs:
 	inc r2
 	dec r3
 	jnz loopLoadOAMs
+
+
+;Adiciona o Backgrounf
+	loadn r1, #1							;porta do bg
+	loadn r2, #background			;endereco dos bg
+	loadn r3, #1200						;repeticoes
+	loopLoadBGs:
+		loadi r0, r2
+		out r0, r1
+		inc r2
+		dec r3
+		jnz loopLoadBGs
 
 main:
 	;;Endereça o OAM

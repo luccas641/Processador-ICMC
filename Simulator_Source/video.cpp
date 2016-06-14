@@ -26,18 +26,19 @@ void Video::addObject(unsigned short data)
 	}else if((addrOAM & 3) == 2){
 		this->oam[addrOAM>>2].c = data;
 	}else if((addrOAM & 3) == 3){
-		this->oam[addrOAM>>2].p = (data);
+		this->oam[addrOAM>>2].p = (data & 0x1F);
+		this->oam[addrOAM>>2].v = (data>>8 & 0x1);
+		this->oam[addrOAM>>2].h = (data>>9 & 0x1);
 	}
 	addrOAM = (addrOAM +1) %512;
 }
 
 void Video::addBG(unsigned int data)
 {
-	if((addrBG & 1) == 0){
-		this->bg[addrBG>>1].c = data;
-	}else if((addrBG & 1) == 1){
-		this->bg[addrBG>>1].p = data;
-	}
+	this->bg[addrBG].c = (data & 0xFF);
+	this->bg[addrBG].v = (data>>8 & 0x1);
+	this->bg[addrBG].h = (data>>9 & 0x1);
+	this->bg[addrBG].p = (data>>10 & 0x1F);
 	addrBG = (addrBG+1)%1200  ;
 }
 

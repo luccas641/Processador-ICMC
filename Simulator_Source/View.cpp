@@ -14,10 +14,10 @@ View::View(Model *model, ControllerInterface *controller)
 {	this->model = model;
 	View::controller = controller;
 
-	// adiciona o view como observador 
+	// adiciona o view como observador
 	model->registraRegistrador(this);
 	model->registraInstrucoes(this);
-	
+
 	cpuram = model->getCpuram();
 
 	// cria a GUI
@@ -58,14 +58,14 @@ void View::updatePC()
 }
 
 void View::updateIR()
-{	ir = model->getIR();	
+{	ir = model->getIR();
 
 	sprintf(textoLabelIR, "IR: %05d", ir);
 	gtk_label_set_text(GTK_LABEL (labelIr), textoLabelIR);
 }
 
 void View::updateSP()
-{	sp = model->getSP();	
+{	sp = model->getSP();
 
 	sprintf(textoLabelSP, "SP: %05d", sp);
 	gtk_label_set_text(GTK_LABEL (labelSp), textoLabelSP);
@@ -108,7 +108,7 @@ void View::updateRegistradores()
 		strcpy(opt, "%05X");
 	else
 		strcpy(opt, "%05d");
-	
+
 	for(int i=8; i--; )
 	{	reg[i] = model->getRegistrador(i);	// atualiza o valor dos registradores
 
@@ -133,24 +133,35 @@ void View::_setColor(cairo_t *cr, int color, int palette){
 	auto c = p[palette << 2 | color];
 	B = c.blue/(double)32;
 	G = c.green/(double)32;
-	R = c.red/(double)32; 
+	R = c.red/(double)32;
 	cairo_set_source_rgb(cr, R, G, B);
 }
 
-void View::_draw_pixmap(cairo_t *cr, int sprite, int palette, int x, int y)
-{	
+void View::_draw_pixmap(cairo_t *cr, int sprite, int palette, int x, int y, int v, int h)
+{
 	int i, j;
 	auto sprites = model->Vid.getSprites();
 
-  	for(i=0; i<8; i++){
-  		for(j=0; j<8; j++){
-  			int cor = ((sprites[sprite/8].p[i])>>j&1)*2 + ((sprites[sprite/8].p[i]>>(j+8))&1);
-			if(cor){   
+	for(i=0; i<8; i++){
+		for(j=0; j<8; j++){
+			int cor = ((sprites[sprite/8].p[i])>>j&1)*2 + ((sprites[sprite/8].p[i]>>(j+8))&1);
+			int indexX = (j+x)*2;
+			int indexY = (i+y)*2;
+			if(v && !h){
+				indexX = (8-j+x)*2;
+			}else if(h && !v){
+				indexY = (8-i+y)*2;
+
+			}else if(v && h){
+				indexX = (8-j+x)*2;
+				indexY = (8-i+y)*2;
+			}
+			if(cor){
 				_setColor(cr, cor, palette);
-		  		cairo_rectangle(cr, (j+x)*2, (i+y)*2, 2, 2);
+		  		cairo_rectangle(cr, indexX, indexY, 2, 2);
 	      		cairo_fill(cr);
 			}
-    	}
+  	}
 	}
 }
 
@@ -164,7 +175,7 @@ void View::escrever_na_tela(const char *string, int linha, int size)
 	{	g_print("Erro tentou escrever na linha %d e o maximo é %d\n", linha, gtk_text_buffer_get_line_count(buffer));
 		return;
 	}
- 
+
 	GtkTextIter iterInicio, iterFim;
 
 	gtk_text_buffer_get_iter_at_line(buffer, &iterInicio, linha);
@@ -206,7 +217,7 @@ void View::Imprime(unsigned int atual, unsigned int proxima, unsigned int linhas
 void View::show_program(int linha, int pc, int sp)
 { unsigned int ir = model->getMem(pc),
 							_rx = model->pega_pedaco(ir,9,7),
-							_ry = model->pega_pedaco(ir,6,4), 
+							_ry = model->pega_pedaco(ir,6,4),
 							_rz = model->pega_pedaco(ir,3,1);
 
 	char texto[128];
@@ -214,7 +225,7 @@ void View::show_program(int linha, int pc, int sp)
   switch(model->pega_pedaco(ir,15,10))
 	{ case INCHAR: 	sprintf(texto, "PC: %05d\t|	IN  R%d, R%d	|	R%d      <- bus[R%d]", 			pc, _rx,_ry, _rx,_ry);		 			 break;
 	  case OUTCHAR:	sprintf(texto, "PC: %05d\t|	OUT R%d, R%d	|	bus[R%d] <- R%d", pc, _rx, _ry, _ry, _rx); break;
-	  case EI:	
+	  case EI:
 	  	switch(model->pega_pedaco(ir,0,0)){
 	  		case 1:
 	  			sprintf(texto, "PC: %05d\t|	EI			|	C0[0] <= 1", pc); break;
@@ -267,16 +278,16 @@ void View::show_program(int linha, int pc, int sp)
 
     case PUSH:
     	if(!model->pega_pedaco(ir,6,6)) // Registrador
-			{ sprintf(texto, "PC: %05d\t|	PUSH R%d			|	MEM[%d] <- R%d]", pc, _rx, sp, _rx); 
-				break; 
+			{ sprintf(texto, "PC: %05d\t|	PUSH R%d			|	MEM[%d] <- R%d]", pc, _rx, sp, _rx);
+				break;
 			}
 			sprintf(texto, "PC: %05d\t|	PUSH FR			|	MEM[%d] <- FR]", pc, sp); // FR
       break;
 
     case POP:
     	if(!model->pega_pedaco(ir,6,6))  // Registrador
-			{ sprintf(texto, "PC: %05d\t|	POP R%d				|	R%d <- MEM[%d]", pc, _rx, _rx, sp); 
-				break; 
+			{ sprintf(texto, "PC: %05d\t|	POP R%d				|	R%d <- MEM[%d]", pc, _rx, _rx, sp);
+				break;
 			}
 			sprintf(texto, "PC: %05d\t|	POP FR			|	FR <- MEM[%d]", pc, sp); // FR
       break;
@@ -311,8 +322,8 @@ void View::show_program(int linha, int pc, int sp)
     case LMOD: sprintf(texto, "PC: %05d\t|	MOD R%d, R%d, R%d		|	R%d <- R%d %% R%d", 	pc, _rx, _ry, _rz, _rx, _ry, _rz); break;
     case INC:
     	if(!model->pega_pedaco(ir,6,6))  // Inc Rx
-			{ sprintf(texto, "PC: %05d\t|	INC R%d				|	R%d <- R%d + 1", pc, _rx, _rx, _rx); 
-				break; 
+			{ sprintf(texto, "PC: %05d\t|	INC R%d				|	R%d <- R%d + 1", pc, _rx, _rx, _rx);
+				break;
 			}
 			sprintf(texto, "PC: %05d\t|	DEC R%d				|	R%d <- R%d - 1", pc, _rx, _rx, _rx);// Dec Rx
       break;
@@ -325,8 +336,8 @@ void View::show_program(int linha, int pc, int sp)
 				case 3: sprintf(texto, "PC: %05d\t|	SHIFTR1 R%d, #%02d		|	'1'-> R%d   >> %d", pc, _rx, model->pega_pedaco(ir,3,0), _rx, model->pega_pedaco(ir,3,0));break;
 				default:
         	if(model->pega_pedaco(ir,6,5) == 2) // ROTATE LEFT
-          { sprintf(texto, "PC: %05d\t|	ROTL R%d, #%02d	|	R%d <- R%d   << %d", pc, _rx, model->pega_pedaco(ir,3,0), _rx,_rx, model->pega_pedaco(ir,3,0)); 
-						break; 
+          { sprintf(texto, "PC: %05d\t|	ROTL R%d, #%02d	|	R%d <- R%d   << %d", pc, _rx, model->pega_pedaco(ir,3,0), _rx,_rx, model->pega_pedaco(ir,3,0));
+						break;
 					}
 					sprintf(texto, "PC: %05d\t|	ROTR R%d, #%02d	|	R%d -> R%d   >> %d", pc, _rx, model->pega_pedaco(ir,3,0), _rx,_rx, model->pega_pedaco(ir,3,0)); break;
 			}
@@ -340,7 +351,7 @@ void View::show_program(int linha, int pc, int sp)
 
     case BREAKP: sprintf(texto, "PC: %05d\t|	BREAKP #%05d		|	Break Point", pc, model->pega_pedaco(ir,9,0)); break;
 
-		default: 
+		default:
 			cout << "ERRO - show program linha: " << linha << " pc " << pc << endl;
 			break;
   }
@@ -418,7 +429,7 @@ void View::criaEditar(GtkWidget *menubar)
 
 	GtkWidget *resetComTela = gtk_radio_menu_item_new_with_label(NULL, "Sim"),
 						*resetSemTela = gtk_radio_menu_item_new_with_label_from_widget(GTK_RADIO_MENU_ITEM (resetComTela), "Não");
-						
+
 
 	gtk_menu_shell_append(GTK_MENU_SHELL (editMenu), resetVideo);
 
@@ -556,7 +567,7 @@ void View::criarAreaTexto(GtkWidget *hbox)
 gboolean View::teclado(GtkWidget *widget, GdkEventKey *event, gpointer data)
 {	char tecla[32];
 	guint keyval;
-	
+
 	keyval = event->keyval;
 
 	strcpy(tecla, gdk_keyval_name (event->keyval) );
@@ -564,8 +575,8 @@ gboolean View::teclado(GtkWidget *widget, GdkEventKey *event, gpointer data)
 	if (keyval <= 127)
 	{
 		tecla[0] = ((char*)&keyval)[0];
-		tecla[1] = 0;	
-	} 
+		tecla[1] = 0;
+	}
 	controller->userInput(tecla);
 	return FALSE;
 }
@@ -583,13 +594,13 @@ void View::PressionaBotaoRegistradorHex(GtkWidget *widget)
 {	controller->setRegistradorHex(true);	}
 
 void View::PressionaBotaoResetVideoSim(GtkWidget *widget)
-{ controller->setResetVideo(true); 
+{ controller->setResetVideo(true);
 
 	gtk_label_set_text(GTK_LABEL(labelR), "Pressione Insert para resetar o simulador (com vídeo)"); // <--------
 }
 
 void View::PressionaBotaoResetVideoNao(GtkWidget *widget)
-{ controller->setResetVideo(false); 
+{ controller->setResetVideo(false);
 
 	gtk_label_set_text(GTK_LABEL(labelR), "Pressione Insert para resetar o simulador (sem vídeo)"); // <--------
 }
@@ -628,18 +639,17 @@ gboolean View::ViewerExpose(GtkWidget *widget, GdkEventExpose *event, gpointer d
 
   	for(int i=1200; i--;)
 	{
-		vi->_draw_pixmap(cr, bg[i].c, bg[i].p, 8*(i%40), 8*(i/40));
+		vi->_draw_pixmap(cr, bg[i].c, bg[i].p, 8*(i%40), 8*(i/40), bg[i].v, bg[i].h);
 	}
 
 	auto oam = vi->model->Vid.getOAM();
 //
 	for(int i=128; i--; )
-	{	
-		vi->_draw_pixmap(cr, oam[i].c, oam[i].p, oam[i].x, oam[i].y);
+	{
+		vi->_draw_pixmap(cr, oam[i].c, oam[i].p, oam[i].x, oam[i].y, oam[i].v, oam[i].h);
 	}
 
   	cairo_destroy(cr);
 
 	return FALSE;
 }
-

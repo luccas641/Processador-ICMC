@@ -29,18 +29,18 @@ class View : public Instrucoes, public Registradores
 		GtkWidget *window;
 
 		// ------ labels ---------
-		GtkWidget *labelEnd, 
+		GtkWidget *labelEnd,
 							*labelP,
-							*labelCharmap, 
+							*labelCharmap,
 							*labelCPURAM;
 
 		static GtkWidget **TextEntryRegs,
 												*labelR;
 
-		GtkWidget *labelReg[8], 
-							*labelIr, 
-							*labelSp, 
-							*labelPc, 
+		GtkWidget *labelReg[8],
+							*labelIr,
+							*labelSp,
+							*labelPc,
 							*labelFR,
 							*labelC0,
 							*labelIRQ;
@@ -90,12 +90,12 @@ class View : public Instrucoes, public Registradores
 
 		void _setColor(cairo_t *cr, int, int);
 
-		void _draw_pixmap(cairo_t *cr, int sprite, int palette, int x, int y);
+		void _draw_pixmap(cairo_t *cr, int sprite, int palette, int x, int y, int v, int h);
 
 		static gboolean ViewerExpose(GtkWidget *widget, GdkEventExpose *event, gpointer data);
 
 		// ----- Instrucoes -------
-		void updateInstrucoes(unsigned int atual, unsigned int proxima, unsigned int linhas); 
+		void updateInstrucoes(unsigned int atual, unsigned int proxima, unsigned int linhas);
 
 		void Imprime(unsigned int atual, unsigned int proxima, unsigned int linhas);
 
@@ -153,4 +153,3 @@ class View : public Instrucoes, public Registradores
 };
 
 #endif
-

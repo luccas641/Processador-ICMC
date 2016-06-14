@@ -9,20 +9,24 @@ typedef struct
 	uint16_t x, y;
 	uint16_t c;
 	uint16_t p;
+	uint16_t v;
+	uint16_t h;
 } OAMe;
 
-typedef struct 
+typedef struct
 {
 	uint16_t c;
 	uint16_t p;
+	uint16_t v;
+	uint16_t h;
 } BGMAPe;
 
-typedef struct 
+typedef struct
 {
-	uint16_t p[8];	
+	uint16_t p[8];
 } SPRITEe;
 
-typedef struct 
+typedef struct
 {
 	uint8_t red:5;
 	uint8_t green:5;
@@ -30,7 +34,7 @@ typedef struct
 } COLORe;
 
 class Video
-{	
+{
 	unsigned int addrSprite;
 	unsigned int addrOAM;
 	unsigned int addrPalette;
@@ -43,7 +47,7 @@ class Video
 	public:
 		Video();
 
-		void addSprite(unsigned int); 
+		void addSprite(unsigned int);
 		void addObject(unsigned short);
 		void addBG(unsigned int);
 		void addPalette(unsigned int);
