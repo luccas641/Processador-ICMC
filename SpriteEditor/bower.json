@@ -17,6 +17,7 @@
     "angular": "^1.5.6",
     "angular-contenteditable": "^0.3.8",
     "angular-local-storage": "^0.2.7",
-    "angular-bootstrap-colorpicker": "^3.0.25"
+    "angular-bootstrap-colorpicker": "^3.0.25",
+    "angular-sanitize": "^1.5.6"
   }
 }

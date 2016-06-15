@@ -19,12 +19,18 @@
           border: 1px solid #000;
       }
 
+      #editor input {
+        background-color: transparent;
+        border: 0px;
+        width: 18px;
+      }
+
       #editor td, #background td, #paletas td{
         width: 18px;
         height: 16px;
       }
 
-      #preview table, #sprites table{
+      #sprites #preview table, #sprites table{
         border: 1px #000 solid;
       }
 
@@ -34,38 +40,60 @@
         border: 0px;
       }
 
+      #previewGroup td {
+          border: 0px !important;
+      }
+
       #sprites, #paletas, #source{
         overflow: auto;
         max-height: 80vh;
       }
 
+      #editor input[type="number"]::-webkit-outer-spin-button,
+      #editor input[type="number"]::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+      }
+      #editor input[type="number"] {
+          -moz-appearance: textfield;
+      }
+
       tr:{
         border: 0px;
+      }
+
+      .loading{
+
       }
     </style>
   </head>
 
   <body ng-app="editor" ng-controller='mainController as vm'>
+    <div class="loading" ng-if="vm.loading">
+      <h1>Carregando...</h1>
+    </div>
     <br>
-    <div class="container-fluid">
+    <div class="container-fluid" ng-if="vm.loading==false">
       <div class="row">
         <div class="col-md-2">
           <div class="panel panel-primary">
-            <div class="panel-heading">Sprites</div>
+            <div class="panel-heading">Sprites
+              <button class="btn btn-danger pull-right" ng-click="vm.resetSprites()">Limpar</button>
+              <div class="clearfix"></div></div>
             <div class="panel-body" id="sprites">
               <div class="row" ng-repeat="sprite in vm.sprites" style="margin-top:2px;">
                 <div class="col-md-1">
                   {{sprite.id}}
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-4">
                   <table id="preview">
                     <tr data-row="{{row.id}}" ng-repeat="row in sprite.rows">
-                      <td data-col="{{col.id}}"  ng-style="{'background-color': col.color}" ng-repeat="col in row.cols"></td>
+                      <td data-col="{{col.id}}"  ng-style="{'background-color': col.color}" ng-repeat="col in row.cols" ></td>
                     </tr>
                   </table>
                 </div>
                 <div class="col-md-3">
-                  <button class="button button-primary" ng-click="vm.loadSprite(sprite.id)">Editar</button>
+                  <button class="btn btn-primary" ng-click="vm.loadSprite(sprite.id)">Editar</button>
                 </div>
               </div>
             </div>
@@ -73,23 +101,25 @@
         </div>
         <div class="col-md-2">
           <div class="panel panel-primary">
-            <div class="panel-heading">Paletas</div>
+            <div class="panel-heading">Paletas
+              <button class="btn btn-danger pull-right" ng-click="vm.resetPalettes()">Limpar</button>
+              <div class="clearfix"></div>
+            </div>
             <div class="panel-body" id="paletas">
-              <div class="row" ng-repeat="paleta in vm.palettes">
+              <div class="row" ng-repeat="paleta in vm.palettes" style="margin-top:2px;">
                 <div class="col-md-1">
                   {{paleta.id}}
                 </div>
-                <div class="col-md-5">
-                  <table>
-                    <tr>
+                <div class="col-md-4">
+                  <table style="margin-top:5px;">
+                    <tr >
                       <td ng-style="{'background-color': cor.value}"  ng-repeat="cor in paleta.colors">
-
                       </td>
                     </tr>
                   </table>
                 </div>
                 <div class="col-md-3">
-                  <button class="button button-primary" ng-click="vm.loadPalette(paleta.id)">Editar</button>
+                  <button class="btn btn-primary" ng-click="vm.loadPalette(paleta.id)">Editar</button>
                 </div>
               </div>
             </div>
@@ -97,38 +127,76 @@
         </div>
         <div class="col-md-8">
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-8">
               <div class="row">
                 <div class="col-md-12">
                   <div class="panel panel-primary">
-                    <div class="panel-heading">Sprite Editor - {{vm.currentSprite.id}}</div>
+                    <div class="panel-heading">
+                      Sprite Editor - {{vm.currentSprite.id}}
+                      <button class="btn btn-danger pull-right" ng-click="vm.resetCurrentSprite()">Limpar</button>
+                      <div class="clearfix"></div>
+                    </div>
                     <div class="panel-body">
                       <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                           <div id="editor">
                             <table>
                               <tr data-row="{{row.id}}" ng-repeat="row in vm.currentSprite.rows">
-                                <td data-col="{{col.id}}" ng-change ng-style="{'background-color': col.color}"  ng-model="col.val"  ng-repeat="col in row.cols" contenteditable=""></td>
+                                <td data-col="{{col.id}}" ng-style="{'background-color': col.color}"   ng-repeat="col in row.cols">
+                                  <input ng-change="vm.updateColors();" ng-model="col.val" type="number" max="3" min="0">
+                                </td>
                               </tr>
                             </table>
                           </div>
                         </div>
+                          <div class="col-md-4">
+                            <div class="form-group">
+                              <labal>Paleta:</label>
+                              <select ng-change="vm.updateColors();" class="form-control" name="singleSelect" ng-model="vm.currentSprite.palette">
+                                <option ng-repeat="palette in vm.palettes" value="{{palette.id}}">{{palette.id}}</option>
+                              </select>
+                            </div>
+                            <div class=" checkbox">
+                              <label><input type="checkbox" ng-model="vm.currentSprite.v">V </label>
+                            </div>
+                            <div class=" checkbox">
+                              <label><input type="checkbox" ng-model="vm.currentSprite.h">H </label>
+                            </div>
+                              <div class="form-group">
+                            <button class="btn btn-primary" ng-click="vm.genOam()">Gerar entrada OAM</button>
+                          </div>
+                          <button class="btn btn-primary" ng-click="vm.genBG()">Gerar entrada BG</button>
+                        </div>
                         <div class="col-md-4">
                           <div class="panel panel-primary">
-                            <div class="panel-heading">Preview</div>
+                            <div class="panel-heading form-inline">
+                              Preview
+                              <div class="clearfix"></div>
+                              <input class="form-control" style="width: 50px" ng-model="vm.previewX" type="number" max="4" min="1"></input>
+                                X
+                              <input class="form-control" style="width: 50px" ng-model="vm.previewY" type="number" max="4" min="1"></input>
+                            </div>
                             <div class="panel-body">
-                              <div id="preview">
-                                 <table>
-                                   <tr data-row="{{row.id}}" ng-repeat="row in vm.currentSprite.rows">
-                                     <td data-col="{{col.id}}" ng-style="{'background-color': col.color}" ng-repeat="col in row.cols"></td>
-                                   </tr>
-                                 </table>
+                              <div >
+                                <table id="previewGroup">
+                                  <tr ng-repeat="n in vm.range(1,vm.previewY)">
+                                    <td ng-repeat="n in vm.range(1,vm.previewX)">
+                                      <table id="preview">
+                                       <tr ng-if="!vm.currentSprite.v" data-row="{{row.id}}" ng-repeat="row in vm.currentSprite.rows">
+                                         <td ng-if="vm.currentSprite.h" data-col="{{col.id}}" ng-style="{'background-color': col.color}" ng-repeat="col in row.cols | reverse"></td>
+                                         <td ng-if="!vm.currentSprite.h" data-col="{{col.id}}" ng-style="{'background-color': col.color}" ng-repeat="col in row.cols"></td>
+                                       </tr>
+                                       <tr ng-if="vm.currentSprite.v" data-row="{{row.id}}" ng-repeat="row in vm.currentSprite.rows | reverse">
+                                         <td ng-if="vm.currentSprite.h" data-col="{{col.id}}" ng-style="{'background-color': col.color}" ng-repeat="col in row.cols | reverse"></td>
+                                         <td ng-if="!vm.currentSprite.h" data-col="{{col.id}}" ng-style="{'background-color': col.color}" ng-repeat="col in row.cols"></td>
+                                       </tr>
+                                     </table>
+                                   </td>
+                                  </tr>
+                                </table>
                                </div>
                             </div>
                           </div>
-                          <labal>Paleta:</label><select class="form-control" name="singleSelect" ng-model="vm.currentSprite.palette">
-                            <option ng-repeat="palette in vm.palettes" value="{{palette.id}}">{{palette.id}}</option>
-                          </select><br>
                         </div>
                       </div>
                     </div>
@@ -139,7 +207,10 @@
                 <div class="col-md-6">
                   <div id="palette">
                     <div class="panel panel-primary">
-                      <div class="panel-heading">Paleta Editor - {{vm.currentPalette.id}}</div>
+                      <div class="panel-heading">Paleta Editor - {{vm.currentPalette.id}}
+                        <button class="btn btn-danger pull-right" ng-click="vm.resetCurrentPalette()">Limpar</button>
+                        <div class="clearfix"></div>
+                      </div>
                       <div class="panel-body">
                         <table class="table">
                           <tr>
@@ -151,19 +222,19 @@
                           <tr>
                             <td>1
                             </td>
-                            <td ><input data-color="1" colorpicker="rgb" ng-style="{'background-color': vm.currentPalette.colors[0].value}" ng-model="vm.currentPalette.colors[0].value" class="form-control">
+                            <td ><input ng-change="vm.updateColors();" data-color="1" colorpicker="rgb" ng-style="{'background-color': vm.currentPalette.colors[0].value}" ng-model="vm.currentPalette.colors[0].value" class="form-control">
                             </td>
                           </tr>
                           <tr>
                             <td>2
                             </td>
-                            <td ><input data-color="2" colorpicker="rgb" ng-style="{'background-color': vm.currentPalette.colors[1].value}" ng-model="vm.currentPalette.colors[1].value" class="form-control">
+                            <td ><input ng-change="vm.updateColors();" data-color="2" colorpicker="rgb" ng-style="{'background-color': vm.currentPalette.colors[1].value}" ng-model="vm.currentPalette.colors[1].value" class="form-control">
                             </td>
                           </tr>
                           <tr>
                             <td>3
                             </td>
-                            <td  ><input data-color="3" colorpicker="rgb" ng-style="{'background-color': vm.currentPalette.colors[2].value}" ng-model="vm.currentPalette.colors[2].value" class="form-control">
+                            <td  ><input ng-change="vm.updateColors();" data-color="3" colorpicker="rgb" ng-style="{'background-color': vm.currentPalette.colors[2].value}" ng-model="vm.currentPalette.colors[2].value" class="form-control">
                             </td>
                           </tr>
                         </table>
@@ -171,9 +242,16 @@
                     </div>
                   </div>
                 </div>
+                <div class="col-md-6">
+                  <div class="panel panel-primary">
+                    <div class="panel-heading">BG/OAM</div>
+                    <div class="panel-body"  ng-bind-html="vm.code">
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="panel panel-primary">
                 <div class="panel-heading">Código</div>
                 <div class="panel-body">
@@ -196,6 +274,7 @@
     <script>window.jQuery || document.write('<script src="bower_components/jquery/dist/jquery.min.js"><\/script>')</script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
     <script src="bower_components/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js"></script>
     <script src="bower_components/angular-contenteditable/angular-contenteditable.js"></script>
     <script src="bower_components/angular-local-storage/dist/angular-local-storage.min.js"></script>

@@ -1,16 +1,89 @@
 (function(){
-  angular.module('editor', ["contenteditable", "LocalStorageModule", 'colorpicker.module'])
+  angular.module('editor', ["contenteditable", "LocalStorageModule", 'colorpicker.module', 'ngSanitize'])
     .controller('mainController', mainController)
     .config(function (localStorageServiceProvider) {
     localStorageServiceProvider
       .setPrefix('editor')
+    })
+    .filter('reverse', function() {
+      return function(items) {
+        return items.slice().reverse();
+      };
     });
-  function mainController($scope, $rootScope, localStorageService, $interval){
+  function mainController($scope, $rootScope, localStorageService, $interval, $timeout){
     var vm = this;
+    vm.loading = true;
 
     vm.sprites = [];
     vm.palettes = [];
     vm.backgrounds = [];
+    vm.code = "";
+    vm.previewX = 1;
+    vm.previewY = 1;
+
+    vm.range = function(min, max, step) {
+      step = step || 1;
+      var input = [];
+      for (var i = min; i <= max; i += step) {
+          input.push(i);
+      }
+      return input;
+  };
+
+    vm.resetSprites = function(){
+      if(confirm("Tem certeza? Não pode ser desfeito.")){
+
+        vm.sprites = [];
+        for(var i=0;i<128;i++){
+          vm.newSprite();
+        }
+        vm.loadSprite(0);
+      }
+
+    }
+
+    vm.resetPalettes = function(){
+      if(confirm("Tem certeza? Não pode ser desfeito.")){
+        vm.palettes = [];
+        for(var i=0;i<32;i++){
+          vm.addPalette();
+        }
+
+        vm.loadPalette(0);
+      }
+    }
+
+    vm.resetCurrentPalette = function(){
+      if(confirm("Tem certeza? Não pode ser desfeito.")){
+        angular.forEach(vm.currentPalette.colors, function(color, key){
+          color.value = "";
+          color.color = "";
+        });
+      }
+    }
+
+    vm.resetCurrentSprite = function(){
+      if(confirm("Tem certeza? Não pode ser desfeito.")){
+        angular.forEach(vm.currentSprite.rows, function(row, key){
+          angular.forEach(row.cols, function(col, key){
+            col.val = "";
+            col.color = "";
+          });
+        });
+      }
+    }
+
+    vm.genOam = function(){
+      vm.code = "oam"+vm.currentSprite.id+" : var #2048<br>\
+        static oam"+vm.currentSprite.id+" + #0, #0 ;X<br>\
+        static oam"+vm.currentSprite.id+" + #1, #0 ;Y<br>\
+        static oam"+vm.currentSprite.id+" + #2, #"+vm.currentSprite.id+" ;Sprite<br>\
+        static oam"+vm.currentSprite.id+" + #3, #"+(vm.currentSprite.h*256+vm.currentSprite.h*512+parseInt(vm.currentSprite.palette))+" ;HV-Paleta<br>";
+    }
+
+    vm.genBG = function(){
+      vm.code = vm.currentSprite.h*256+vm.currentSprite.h*512+parseInt(vm.currentSprite.id)+parseInt(vm.currentSprite.palette)*1024;
+    }
 
     vm.newSprite = function(){
       var sprite = {
@@ -43,22 +116,25 @@
           {
             id: "1",
             value: "",
-            color: ""
+            color: "0"
           },{
             id: "2",
             value: "",
-            color: ""
+            color: "0"
           },{
             id: "3",
             value: "",
-            color: ""
+            color: "0"
           }
         ]
       })
     }
 
     vm.loadSprite = function(id){
+      vm.code = "";
       vm.currentSprite = vm.sprites[id];
+      vm.currentSprite.v = 0;
+      vm.currentSprite.h = 0;
     }
 
     vm.loadPalette = function(id){
@@ -76,10 +152,10 @@
       vm.palettes = localStorageService.get("palettes");
       vm.backgrounds = localStorageService.get("backgrounds");
 
-      if(vm.sprites == null || vm.palettes == null){
+      if(vm.sprites == null || vm.palettes == null || vm.sprites.length == 0 || vm.palettes.length == 0){
         vm.sprites = [];
         vm.palettes = [];
-        for(var i=0;i<32;i++){
+        for(var i=0;i<128;i++){
           vm.newSprite();
         }
 
@@ -112,10 +188,6 @@
       });
     }
 
-    vm.load();
-
-
-
     vm.updateColors = function(){
       angular.forEach(vm.currentSprite.rows, function(row, rowId){
         angular.forEach(row.cols, function(col, colId){
@@ -133,17 +205,22 @@
           }
         });
       });
+      vm.change=true;
     };
     $interval(function(){
       vm.save();
-      vm.genCode();
+      if(vm.change){
+
+        vm.genCode();
+        vm.change=false;
+      }
     }, 2000);
 
-    $interval(function(){
-      vm.updateColors();
-    }, 200);
-    $scope.$on('colorpicker-selected', function(event, colorObject){
 
-    });
+    $timeout(function(){
+      vm.load();
+      vm.updateColors();
+      vm.loading = false;
+    })
   }
 })()
