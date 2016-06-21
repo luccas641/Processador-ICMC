@@ -144,7 +144,7 @@ void View::_draw_pixmap(cairo_t *cr, int sprite, int palette, int x, int y, int 
 
 	for(i=0; i<8; i++){
 		for(j=0; j<8; j++){
-			int cor = ((sprites[sprite/8].p[i])>>j&1)*2 + ((sprites[sprite/8].p[i]>>(j+8))&1);
+			int cor = ((sprites[sprite].p[i])>>j&1)*2 + ((sprites[sprite].p[i]>>(j+8))&1);
 			int indexX = (j+x)*2;
 			int indexY = (i+y)*2;
 			if(v && !h){
