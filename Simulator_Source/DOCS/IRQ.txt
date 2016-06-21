@@ -1,16 +1,16 @@
-16128		irq0		PIT0
-16129		irq1		PIT1
-16130		irq2		PIT2
-16131		irq3		Keyboard
-16132		irq4
-16133		irq5
-16134		irq6
-16135		irq7
-16136		irq8
-16137		irq9
-16138		irq10
-16139		irq11
-16140		irq12
-16141		irq13
-16142		irq14
-16143		irq15
+32752		irq0		PIT0
+32753		irq1		PIT1
+32754		irq2		PIT2
+32755		irq3		Keyboard
+32756		irq4
+32757		irq5
+32758		irq6
+32759		irq7
+32760		irq8
+32761		irq9
+32762		irq10
+32763		irq11
+32764		irq12
+32765		irq13
+32766		irq14
+32767		irq15

@@ -15,6 +15,11 @@
     <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="bower_components/angular-bootstrap-colorpicker/css/colorpicker.min.css" rel="stylesheet">
     <style>
+      #editor td {
+          border: 1px solid #eee;
+          color: #eee;
+      }
+
       td {
           border: 1px solid #000;
       }
@@ -52,6 +57,10 @@
       #sprites, #paletas {
         overflow: auto;
         max-height: 80vh;
+      }
+
+      #sprites table, #preview table, #editor table, #previewGroup table{
+        background-color: #000;
       }
 
       #editor input[type="number"]::-webkit-outer-spin-button,
@@ -247,7 +256,7 @@
                           <tr>
                             <td>0
                             </td>
-                            <td ><input data-color="0" class="form-control" value="Transparente" disabled>
+                            <td ><input style="background-color: #000" data-color="0" class="form-control" value="Transparente" disabled>
                             </td>
                           </tr>
                           <tr>

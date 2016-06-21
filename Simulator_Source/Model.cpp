@@ -61,7 +61,7 @@ Model::Model(char *cpuram)
 	GravaArquivo(cpuram);
 
 	sprintf(this->cpuram, "CPURAM: %s", cpuram);
-	
+
 	varDelay = MEDIA;
 	automatico = false;
 	count = 0;
@@ -79,7 +79,7 @@ void Model::reset()
 	ir = 0;
  	sp = 0x7FFC;
 	auxpc = 0;
-	pc2 = 0;	
+	pc2 = 0;
 
 	int i, tmp;
 	int vetor[] = {0, 0, 0, 0, 0 , 0, 0, 0};
@@ -153,7 +153,7 @@ int Model::getIR()
 
 void Model::setIR(int valor)
 {	if(valor >= 0)
-		ir = valor;	
+		ir = valor;
 	Reg->updateIR();
 }
 
@@ -215,7 +215,7 @@ bool Model::getProcessamento()
 
 void Model::processa()
 { if(automatico)
-	{	
+	{
 		GError *error = NULL;
 
 //*
@@ -238,7 +238,7 @@ void Model::processa()
 { return (int)((ir & (int)  ( (int)((1 << (a+1)) - 1) )  ) >> b); }
 
 void Model::resetVideo()
-{	
+{
 	Vid.reset();
 }
 
@@ -351,7 +351,7 @@ unsigned int Model::_rotr(const unsigned int value, int shift)
 }
 
 void Model::delay()
-{ 
+{
 /*
 	void Model::delay(clock_t wait)
 
@@ -369,7 +369,7 @@ int Model::getDelay()
 {	return varDelay; }
 
 void Model::setDelay(int valor)
-{	
+{
 	/*
 	// se igual nao faz nada
 		if(varDelay == valor)
@@ -382,7 +382,7 @@ void Model::setDelay(int valor)
 }
 
 void Model::processador()
-{ 
+{
 	unsigned int la;
 	unsigned int i;
 	unsigned int temp;
@@ -413,71 +413,71 @@ if(opcode != RTS){
 
 	    /* Executa interrupcao */
 		  if(IRQ[0]){
-		  		pc = mem[0x3f00];
+		  		pc = mem[0x7ff0];
 		  		IRQ[0] = 0;
 		  }
 		  else if(IRQ[1]){
-		  		pc = mem[0x3f01];
+		  		pc = mem[0x7ff1];
 		  		IRQ[1] = 0;
 		  }
 		  else if(IRQ[2]){
-		  		pc = mem[0x3f02];
+		  		pc = mem[0x7ff2];
 		  		IRQ[2] = 0;
 		  }
 		  else if(IRQ[3]){
-		  		pc = mem[0x3f03];
+		  		pc = mem[0x7ff3];
 		  		IRQ[3] = 0;
 		  }
 		  else if(IRQ[4]){
-		  		pc = mem[0x3f04];
+		  		pc = mem[0x7ff4];
 		  		IRQ[4] = 0;
 		  }
 		  else if(IRQ[5]){
-		  		pc = mem[0x3f05];
+		  		pc = mem[0x7ff5];
 		  		IRQ[5] = 0;
 		  }
 		  else if(IRQ[6]){
-		  		pc = mem[0x3f06];
+		  		pc = mem[0x7ff6];
 		  		IRQ[6] = 0;
 		  }
 		  else if(IRQ[7]){
-		  		pc = mem[0x3f07];
+		  		pc = mem[0x7ff7];
 		  		IRQ[7] = 0;
 		  }
 		  else if(IRQ[8]){
-		  		pc = mem[0x3f08];
+		  		pc = mem[0x7ff8];
 		  		IRQ[8] = 0;
 		  }
 		  else if(IRQ[9]){
-		  		pc = mem[0x3f09];
+		  		pc = mem[0x7ff9];
 		  		IRQ[9] = 0;
 		  }
 		  else if(IRQ[10]){
-		  		pc = mem[0x3f0a];
+		  		pc = mem[0x7ffa];
 		  		IRQ[10] = 0;
 		  }
 		  else if(IRQ[11]){
-		  		pc = mem[0x3f0b];
+		  		pc = mem[0x7ffb];
 		  		IRQ[11] = 0;
 		  }
 		  else if(IRQ[12]){
-		  		pc = mem[0x3f0c];
+		  		pc = mem[0x7ffc];
 		  		IRQ[12] = 0;
 		  }
 		  else if(IRQ[13]){
-		  		pc = mem[0x3f0d];
+		  		pc = mem[0x7ffd];
 		  		IRQ[13] = 0;
 		  }
 		  else if(IRQ[14]){
-		  		pc = mem[0x3f0e];
+		  		pc = mem[0x7ffe];
 		  		IRQ[14] = 0;
 		  }
 		  else if(IRQ[15]){
-		  		pc = mem[0x3f0f];
+		  		pc = mem[0x7fff];
 		  		IRQ[15] = 0;
 		  }
 	  }
-	}  
+	}
   // ----- Ciclo de Busca: --------
 	ir = mem[pc];
 	if(pc > 32767)
@@ -510,28 +510,28 @@ if(opcode != RTS){
 
     case OUTCHAR:
 			if(reg[ry] == 0) //Video ADDR BG
-			{	
+			{
 				Vid.setAddrBG(reg[rx]);
 			}else if(reg[ry] == 1) //Video BG
-			{	
+			{
 				Vid.addBG(reg[rx]);
 			}else if(reg[ry] == 2) //Video ADDR OAM
-			{	
+			{
 				Vid.setAddrOAM(reg[rx]);
 			}else if(reg[ry] == 3) //Vdeo OAM
-			{	
+			{
 				Vid.addObject(reg[rx]);
 			}else if(reg[ry] == 4) //Video ADDR SPRITE
-			{	
+			{
 				Vid.setAddrSprite(reg[rx]);
 			}else if(reg[ry] == 5) //Video SPRITE
-			{	
+			{
 				Vid.addSprite(reg[rx]);
 			}else if(reg[ry] == 6) //Video ADDR PALETTE
-			{	
+			{
 				Vid.setAddrPalette(reg[rx]);
 			}else if(reg[ry] == 7) //Video PALETTE
-			{	
+			{
 				Vid.addPalette(reg[rx]);
 			}else if(reg[ry] >= 0x901 && reg[ry] <= 0x902){ //com1
 
@@ -848,8 +848,8 @@ if(opcode != RTS){
 				break;
     }
 
- 	
-   
+
+
 	auxpc = pc;
 
 	int ir2;
@@ -857,7 +857,7 @@ if(opcode != RTS){
 	// ----- Ciclo de Busca: --------
     ir2 = mem[pc];
 	pc2 = pc + 1;
-	
+
 	// Case das instrucoes
 	opcode = pega_pedaco(ir2,15,10);
 
@@ -936,4 +936,3 @@ if(opcode != RTS){
 		default: break;
    }
 }
-
