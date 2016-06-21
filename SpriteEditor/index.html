@@ -44,7 +44,12 @@
           border: 0px !important;
       }
 
-      #sprites, #paletas, #source{
+      #spritesSrc, #palettesSrc {
+        overflow: auto;
+        max-height: 40vh;
+      }
+
+      #sprites, #paletas {
         overflow: auto;
         max-height: 80vh;
       }
@@ -72,7 +77,33 @@
     <div class="loading" ng-if="vm.loading">
       <h1>Carregando...</h1>
     </div>
-    <br>
+    <!-- Static navbar -->
+    <nav class="navbar navbar-default navbar-static-top"  ng-if="vm.loading==false">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Sprites Editor</a>
+        </div><a id="downloadAnchorElem" style="display:none"></a>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href ng-click="vm.export()">Exportar</a></li>
+            <li><a href ng-click="vm.importForm = !vm.importForm">Importar</a></li>
+            <li ng-show="vm.importForm" >
+              <form class="navbar-form" role="import">
+               <div class="input-group">
+                 <input type="file" class="form-control" onchange="angular.element(this).scope().import(this)">
+               </div>
+             </form>
+           </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
     <div class="container-fluid" ng-if="vm.loading==false">
       <div class="row">
         <div class="col-md-2">
@@ -253,9 +284,16 @@
             </div>
             <div class="col-md-4">
               <div class="panel panel-primary">
-                <div class="panel-heading">Código</div>
+                <div class="panel-heading">Sprites</div>
                 <div class="panel-body">
-                  <div id="source">
+                  <div id="spritesSrc">
+                  </div>
+                </div>
+              </div>
+              <div class="panel panel-primary">
+                <div class="panel-heading">Peletas</div>
+                <div class="panel-body">
+                  <div id="palettesSrc">
                   </div>
                 </div>
               </div>

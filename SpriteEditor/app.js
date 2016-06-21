@@ -147,6 +147,34 @@
       localStorageService.set("backgrounds", vm.backgrounds);
     }
 
+    vm.export = function(){
+      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(angular.toJson([vm.sprites, vm.palettes]));
+      var dlAnchorElem = document.getElementById('downloadAnchorElem');
+      dlAnchorElem.setAttribute("href",     dataStr     );
+      dlAnchorElem.setAttribute("download", "spriteEditor.json");
+      dlAnchorElem.click();
+    }
+
+    $scope.import = function(file){
+      confirm("Tem certeza? Seus dados atuais serão sobreescrevidos")
+      var reader = new FileReader();
+      reader.readAsText(file.files[0], "UTF-8");
+      reader.onload = function (evt) {
+        var data = angular.fromJson(evt.target.result);
+        if(data.length==2 && data[0].length==128){
+          vm.sprites = data[0];
+          vm.palettes = data[1];
+          vm.loadSprite(0);
+          vm.loadPalette(0);
+          vm.importForm=false;
+          file.value = "";
+          vm.change = true;
+        }else{
+          alert("O arquivo selecionado não parece ser válido.");
+        }
+      }
+    }
+
     vm.load = function(){
       vm.sprites = localStorageService.get("sprites");
       vm.palettes = localStorageService.get("palettes");
@@ -168,23 +196,24 @@
     }
 
     vm.genCode = function(){
-      $("#source").html("");
-      $("#source").append("sprites : var #2048<br>");
+      $("#spritesSrc").html("");
+      $("#spritesSrc").append("sprites : var #1024<br>");
       angular.forEach(vm.sprites, function(sprite, spriteId){
         angular.forEach(sprite.rows, function(row, rowId){
           var num = 0;
           angular.forEach(row.cols, function(col, colId){
             num += Math.pow(parseInt(col.val/2)*2, 16-col.id)/2+Math.pow(parseInt(col.val%2)*2, 8-col.id)/2;
           })
-          $("#source").append("static sprites + #"+(sprite.id*8+row.id)+", #"+num+"<br>");
+          $("#spritesSrc").append("static sprites + #"+(sprite.id*8+row.id)+", #"+num+"<br>");
         });
       });
 
-      $("#source").append("<br><br>palettes : var #128<br>");
+      $("#palettesSrc").html("");
+      $("#palettesSrc").append("palettes : var #128<br>");
       angular.forEach(vm.palettes, function(palette, key){
-        $("#source").append("static palettes + #"+(key*4+1)+", #"+palette.colors[0].color+"<br>");
-        $("#source").append("static palettes + #"+(key*4+2)+", #"+palette.colors[1].color+"<br>");
-        $("#source").append("static palettes + #"+(key*4+3)+", #"+palette.colors[2].color+"<br>");
+        $("#palettesSrc").append("static palettes + #"+(key*4+1)+", #"+palette.colors[0].color+"<br>");
+        $("#palettesSrc").append("static palettes + #"+(key*4+2)+", #"+palette.colors[1].color+"<br>");
+        $("#palettesSrc").append("static palettes + #"+(key*4+3)+", #"+palette.colors[2].color+"<br>");
       });
     }
 
