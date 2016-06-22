@@ -82,7 +82,7 @@
     }
 
     vm.genBG = function(){
-      vm.code = vm.currentSprite.h*256+vm.currentSprite.h*512+parseInt(vm.currentSprite.id)+parseInt(vm.currentSprite.palette)*1024;
+      vm.code = vm.currentSprite.h*256+vm.currentSprite.v*512+parseInt(vm.currentSprite.id)+parseInt(vm.currentSprite.palette)*1024;
     }
 
     vm.newSprite = function(){
