@@ -77,7 +77,7 @@ void Model::setController(ControllerInterface *controller)
 void Model::reset()
 {	pc = 0;
 	ir = 0;
- 	sp = 0x7FFC;
+ 	sp = 0x5FFC;
 	auxpc = 0;
 	pc2 = 0;
 
@@ -94,7 +94,7 @@ void Model::reset()
 
 	setPC(0);
 	setIR(0);
-	setSP(0x7FFC);
+	setSP(0x5FFC);
 
 	setRegistrador(vetor);
 
