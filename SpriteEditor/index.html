@@ -49,7 +49,7 @@
           border: 0px !important;
       }
 
-      #spritesSrc, #palettesSrc {
+      #spritesSrc, #palettesSrc, #bgcode {
         overflow: auto;
         max-height: 40vh;
       }
@@ -79,6 +79,22 @@
       .loading{
 
       }
+
+      #background #preview td{
+        width: 2px;
+        height: 2px;
+        border: 0px;
+      }
+
+      #background td{
+        width: 17px;
+        height: 17px;
+        border: 1px solid #111;
+      }
+
+      #background {
+        background-color: #000;
+      }
     </style>
   </head>
 
@@ -100,6 +116,10 @@
         </div><a id="downloadAnchorElem" style="display:none"></a>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
+            <li><a ng-click="vm.state = 'sprites'">Sprites</a></li>
+            <li><a ng-click="vm.state = 'background'">Background</a></li>
+          </ul>
+          <ul class="nav navbar-nav nabvar-right">
             <li><a href ng-click="vm.export()">Exportar</a></li>
             <li><a href ng-click="vm.importForm = !vm.importForm">Importar</a></li>
             <li ng-show="vm.importForm" >
@@ -133,7 +153,7 @@
                   </table>
                 </div>
                 <div class="col-md-3">
-                  <button class="btn btn-primary" ng-click="vm.loadSprite(sprite.id)">Editar</button>
+                  <button class="btn btn-primary" ng-click="vm.loadSprite(sprite.id)">Usar</button>
                 </div>
               </div>
             </div>
@@ -159,14 +179,14 @@
                   </table>
                 </div>
                 <div class="col-md-3">
-                  <button class="btn btn-primary" ng-click="vm.loadPalette(paleta.id)">Editar</button>
+                  <button class="btn btn-primary" ng-click="vm.loadPalette(paleta.id)">Usar</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div class="col-md-8">
-          <div class="row">
+          <div class="row" ng-if="vm.state=='sprites'">
             <div class="col-md-8">
               <div class="row">
                 <div class="col-md-12">
@@ -308,7 +328,45 @@
               </div>
             </div>
           </div>
+          <div class="row" ng-if="vm.state=='background'">
+            <div class="col-md-12">
+              <div class="panel panel-primary">
+                <div class="panel-heading">Background
+                  <button class="btn btn-danger pull-right" ng-click="vm.resetBackground()">Limpar</button>
+                  <div class="clearfix"></div></div>
+                <div class="panel-body">
+                  <div class="row">
+                    <div class="col-md-10">
+                      <table id="background">
+                        <tr ng-repeat="bgrow in vm.background.rows">
+                          <td ng-repeat="bgcol in bgrow.cols" ng-mouseover="vm.setBackground($event, bgcol)" ng-click="vm.setBackground($event, bgcol)" >
+                            <table id="preview">
+                              <tr data-row="{{row.id}}" ng-repeat="row in bgcol.val.rows">
+                                <td data-col="{{col.id}}"  ng-style="{'background-color': vm.palettes[bgcol.palette.id].colors[col.val-1].value}" ng-repeat="col in row.cols" ></td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                  </div>
 
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row" ng-if="vm.state=='background'">
+            <div class="col-md-12">
+              <div class="panel panel-primary">
+                <div class="panel-heading">Código</div>
+                <div class="panel-body" id="bgcode" ng-bind-html="vm.bgCode">
+
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div><!-- /.container -->

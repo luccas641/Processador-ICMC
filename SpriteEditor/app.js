@@ -14,9 +14,15 @@
     var vm = this;
     vm.loading = true;
 
+    vm.state = 'background';
+
     vm.sprites = [];
     vm.palettes = [];
-    vm.backgrounds = [];
+    vm.background = [];
+
+    vm.v = false;
+    vm.h = false;
+
     vm.code = "";
     vm.previewX = 1;
     vm.previewY = 1;
@@ -38,6 +44,13 @@
           vm.newSprite();
         }
         vm.loadSprite(0);
+      }
+
+    }
+
+    vm.resetBackground = function(){
+      if(confirm("Tem certeza? Não pode ser desfeito.")){
+        vm.createBG();
       }
 
     }
@@ -83,6 +96,29 @@
 
     vm.genBG = function(){
       vm.code = vm.currentSprite.h*256+vm.currentSprite.v*512+parseInt(vm.currentSprite.id)+parseInt(vm.currentSprite.palette)*1024;
+    }
+
+    vm.createBG = function(){
+      var background = {
+        rows: []
+      }
+      for(var i=0;i<30;i++){
+        var row = {
+          id: i,
+          cols: []
+        };
+        for(var j=0;j<40;j++){
+          row.cols.push({
+            id: j,
+            val: 0,
+            palette: 0,
+            v: 0,
+            h: 0
+          });
+        }
+        background.rows.push(row);
+      }
+      vm.background = background;
     }
 
     vm.newSprite = function(){
@@ -145,11 +181,11 @@
     vm.save = function(){
       localStorageService.set("sprites", vm.sprites);
       localStorageService.set("palettes", vm.palettes);
-      localStorageService.set("backgrounds", vm.backgrounds);
+      localStorageService.set("background", vm.background);
     }
 
     vm.export = function(){
-      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(angular.toJson([vm.sprites, vm.palettes]));
+      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(angular.toJson([vm.sprites, vm.palettes, vm.background]));
       var dlAnchorElem = document.getElementById('downloadAnchorElem');
       dlAnchorElem.setAttribute("href",     dataStr     );
       dlAnchorElem.setAttribute("download", "spriteEditor.json");
@@ -162,9 +198,12 @@
       reader.readAsText(file.files[0], "UTF-8");
       reader.onload = function (evt) {
         var data = angular.fromJson(evt.target.result);
-        if(data.length==2 && data[0].length==128){
+        if(data.length>=2 && data[0].length==128){
           vm.sprites = data[0];
           vm.palettes = data[1];
+          if(data.length==3){
+            vm.background = data[2];
+          }
           vm.loadSprite(0);
           vm.loadPalette(0);
           vm.importForm=false;
@@ -179,7 +218,7 @@
     vm.load = function(){
       vm.sprites = localStorageService.get("sprites");
       vm.palettes = localStorageService.get("palettes");
-      vm.backgrounds = localStorageService.get("backgrounds");
+      vm.background = localStorageService.get("background");
 
       if(vm.sprites == null || vm.palettes == null || vm.sprites.length == 0 || vm.palettes.length == 0){
         vm.sprites = [];
@@ -192,10 +231,40 @@
           vm.addPalette();
         }
       }
+      if(vm.background == null || vm.background.rows == null || vm.background.rows.length!=30){
+
+        vm.createBG();
+      }
       vm.loadSprite(0);
       vm.loadPalette(0);
       vm.change = true;
     }
+
+    vm.setBackground = function(evt, col){
+      if(evt.buttons==1 || evt.type=="click"){
+        col.val = vm.sprites[vm.currentSprite.id];
+        col.palette = vm.palettes[vm.currentPalette.id];
+        col.v = vm.v;
+        col.h = vm.h;
+        vm.change = true;
+      }
+    }
+
+
+    vm.genBGCode = function(){
+      vm.bgCode = "sprites : var #1024<br>";
+      angular.forEach(vm.background.rows, function(row, rowId){
+        angular.forEach(row.cols, function(col, colId){
+          if(col.val!=0){
+            var code = col.h*256+col.v*512+parseInt(col.val.id)+parseInt(col.palette.id)*1024;
+            vm.bgCode += "static sprites + #"+(row.id*40+col.id)+", #"+code+"<br>";
+          }else{
+            vm.bgCode += "static sprites + #"+(row.id*40+col.id)+", #0<br>";
+          }
+        })
+      });
+    };
+
 
     vm.genCode = function(){
       $("#spritesSrc").html("");
@@ -217,7 +286,6 @@
         $("#palettesSrc").append("static palettes + #"+(key*4+2)+", #"+palette.colors[1].color+"<br>");
         $("#palettesSrc").append("static palettes + #"+(key*4+3)+", #"+palette.colors[2].color+"<br>");
       });
-      console.log("gen");
     }
 
     vm.updateColors = function(){
@@ -246,7 +314,11 @@
     $interval(function(){
       vm.save();
       if(vm.change){
-        vm.genCode();
+        if(vm.state=='sprites'){
+          vm.genCode();
+        }else{
+          vm.genBGCode();
+        }
         vm.change=false;
       }
     }, 2000);
