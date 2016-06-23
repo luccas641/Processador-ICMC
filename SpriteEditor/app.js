@@ -252,14 +252,14 @@
 
 
     vm.genBGCode = function(){
-      vm.bgCode = "sprites : var #1024<br>";
+      vm.bgCode = "background : var #1024<br>";
       angular.forEach(vm.background.rows, function(row, rowId){
         angular.forEach(row.cols, function(col, colId){
           if(col.val!=0){
             var code = col.h*256+col.v*512+parseInt(col.val.id)+parseInt(col.palette.id)*1024;
-            vm.bgCode += "static sprites + #"+(row.id*40+col.id)+", #"+code+"<br>";
+            vm.bgCode += "static background + #"+(row.id*40+col.id)+", #"+code+"<br>";
           }else{
-            vm.bgCode += "static sprites + #"+(row.id*40+col.id)+", #0<br>";
+            vm.bgCode += "static background + #"+(row.id*40+col.id)+", #0<br>";
           }
         })
       });
